@@ -80,7 +80,7 @@ class GameScene: SKScene {
 		
 		if (!move)
 		{
-			let moveBall = SKAction.moveTo(movementDirection, duration: 5)
+			let moveBall = SKAction.moveTo(movementDirection, duration: 4)
 			ball.runAction(moveBall)
 			move = true
 		}
