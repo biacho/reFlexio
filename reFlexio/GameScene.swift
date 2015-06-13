@@ -25,7 +25,7 @@ class GameScene: SKScene {
         myLabel.fontSize = 48;
         myLabel.position = CGPoint(x: size.width, y: size.height);
 		
-		//traySetUp()
+		traySetUp()
 		ballSetUp()
 
 		self.addChild(myLabel)
@@ -74,11 +74,11 @@ class GameScene: SKScene {
 	func moveBall()
 	{
 		// Log
-		println("\(movementDirection)")
-		println("\(ball.position)")
+		//println("\(movementDirection)")
+		//println("\(ball.position)")
 		// ---
 		
-		if (!move)
+		if (!move) // realod
 		{
 			let moveBall = SKAction.moveTo(movementDirection, duration: 4)
 			ball.runAction(moveBall)
@@ -86,21 +86,28 @@ class GameScene: SKScene {
 		}
 		else
 		{
-			if (ball.position.y - ball.size.height/2 <= CGRectGetMinY(self.frame))
+			if (ball.position.y - ball.size.height/2 <= tray.frame.origin.y + tray.size.height)
 			{
-				println("y osiągnął")
-				movementDirection = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMaxY(self.frame))
+				if (ball.position.x <= tray.frame.origin.x || ball.position.x >= tray.frame.size.width)
+				{
+					println("Zief")
+					println("\(ball.position)")
+					println("\(tray.frame.origin.y - tray.size.height/2), \(tray.size.height), \(tray.frame.size.height)")
+					
+					movementDirection = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMaxY(self.frame))
+					move = false
+				}
+			}
+			else if (ball.position.y - ball.size.height/2 <= CGRectGetMinY(self.frame)) // Dół
+			{
+				println("Game Over!")
+				ball.removeAllActions()
+				ball.removeFromParent()
 				move = false
-				
-				
-				//ball.removeAllActions()
-				//ball.removeFromParent()
-				//move = false
-				//ballSetUp()
+				ballSetUp()
 			}
 			else if (ball.position.y + ball.size.height/2 >= CGRectGetMaxY(self.frame))
 			{
-				println("y osiągnął")
 				movementDirection = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMinY(self.frame))
 				move = false
 			}
@@ -115,11 +122,9 @@ class GameScene: SKScene {
     override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
         /* Called when a touch begins */
 		letBallMove()
-		//moveBall()
 	}
    
     override func update(currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
-		//ballLocation()
     }
 }
