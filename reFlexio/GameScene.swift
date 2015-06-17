@@ -72,10 +72,9 @@ class GameScene: SKScene {
 		}
 		else
 		{
-			// TODO: Zaimplementować pozycje tacki przy odbiciu piłeczki
 			if (ball.position.y - ball.size.height/2 <= tray.position.y + tray.size.height) // Tacka
 			{
-				if (ball.position.x >= tray.position.x - tray.size.width/2 || ball.position.x <= tray.position.x + tray.size.width)
+				if (ball.position.x >= tray.position.x - tray.size.width/2 && ball.position.x <= tray.position.x + tray.size.width)
 				{
 					switch reflectionAngle
 					{
@@ -88,6 +87,17 @@ class GameScene: SKScene {
 					default:
 						println("Default")
 					}
+				}
+				else
+				{
+					println("Game Over!")
+					ball.removeAllActions()
+					ball.removeFromParent()
+					tray.removeAllActions()
+					tray.removeFromParent()
+					move = false
+					ballSetUp()
+					traySetUp()
 				}
 			}
 			else if (ball.position.y - ball.size.height/2 <= CGRectGetMinY(self.frame)) // Dół
