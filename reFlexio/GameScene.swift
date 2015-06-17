@@ -125,35 +125,34 @@ class GameScene: SKScene {
 	
 	func moveTray(gesture: UIPanGestureRecognizer)
 	{
-		
-		let velocity = gesture.velocityInView(view!)
-		let magnitude = sqrt((velocity.x * velocity.x) + (velocity.y * velocity.y))
-		let slideMultiplier = magnitude / 20
-		
-		//let speed: CGFloat = abs(20)
-		let speed = gesture.velocityInView(view!).x * 0.05
-		
-		if (gesture.locationInView(view!).y >= self.frame.size.height - tray.size.height * 1.5) // <-- Ograniczenie pola poruszania tacką do dołu ekranu
+		if (gesture.locationInView(self.view!).x <= tray.position.x + tray.size.width/2 + 50  && // <-- tacką można poruszać tylko jak palec jest nad nią
+			gesture.locationInView(self.view!).x >= tray.position.x - tray.size.width/2 - 50)
 		{
-			println("translation: \(gesture.translationInView(view!))")
-			println("location: \(gesture.locationInView(view!))")
-			//println("tray: \(tray.position.x)")
-			println("tray: \(gesture.velocityInView(view!).x)")
-
-			if (gesture.velocityInView(view!).x > 0)
+			var translation: CGPoint! = gesture.velocityInView(self.view!)
+			translation.x = (translation.x * 0.055) / 2.8  // Przyspieszenie tacki (iPad Mini 1gen)
+			
+			if (gesture.locationInView(view!).y >= self.frame.size.height - tray.size.height * 2) // <-- Ograniczenie pola poruszania tacką do dołu ekranu
 			{
-				if ((tray.position.x + tray.size.width/2) < self.frame.size.width)
+				if (gesture.velocityInView(view!).x > 0)
 				{
-					self.tray.runAction(SKAction.moveToX(tray.position.x + slideMultiplier, duration: 0))
+					tray.position.x += translation.x
+				}
+				else if (gesture.velocityInView(view!).x < 0)
+				{
+					tray.position.x += translation.x
+				}
+				
+				
+				if (tray.position.x - tray.size.width/2 <= 0)
+				{
+					tray.position.x = 0 + tray.size.width/2
+				}
+				else if (tray.position.x >= self.frame.size.width - tray.size.width/2)
+				{
+					tray.position.x = self.frame.size.width - tray.size.width/2
 				}
 			}
-			else if (gesture.velocityInView(view!).x < 0)
-			{
-				if ((tray.position.x - tray.size.width/2) > 0)
-				{
-					self.tray.runAction(SKAction.moveToX(tray.position.x - slideMultiplier, duration: 0))
-				}
-			}
+			self.tray.runAction(SKAction.moveTo(tray.position, duration: 0))
 		}
 	}
 	
