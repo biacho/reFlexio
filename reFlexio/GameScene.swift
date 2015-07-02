@@ -8,10 +8,28 @@
 
 import SpriteKit
 
-class GameScene: SKScene {
+enum Obstacles: UInt32 {
+	case ball
+	case nothing
 	
-	let ball = SKSpriteNode(imageNamed: "Ball")
-	let tray = SKSpriteNode(imageNamed: "Tray")
+	case wallBottom
+	case wallTop
+	case wallLeft
+	case wallRight
+	
+	case tray
+	
+	case brick
+}
+
+class GameScene: SKScene, SKPhysicsContactDelegate {
+	
+	//let ball = SKSpriteNode(imageNamed: "Ball")
+	var ball:Ball!
+	
+	//let tray = SKSpriteNode(imageNamed: "Tray")
+	var tray:Tray!
+	
 	let gameOverLabel = SKLabelNode(fontNamed:"Chalkduster")
 	
 	var moveBallToDirection = SKAction()
@@ -28,22 +46,36 @@ class GameScene: SKScene {
 	var y = CGFloat() // do wyznaczania celu poruszania się
 
 	
-	enum Obstacles {
-		case nothing
-		
-		case wallBottom
-		case wallTop
-		case wallLeft
-		case wallRight
-		
-		case tray
-		
-		case brick
-	}
+	
 	
 	var obstaclesType = Obstacles.nothing
 	
+	// Collision in SpriteKit
+	func didBeginContact(contact: SKPhysicsContact) {
+		// this gets calld automaticly when two object begin contact with each other
+		
+		let contactMask = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+		
+		switch(contactMask) {
+		case Obstacles.ball.rawValue | Obstacles.tray.rawValue:
+			hitInTray() // Odbija się :) 
+			
+		default:
+			return
+		}
+
+	}
 	
+	func didEndContact(contact: SKPhysicsContact) {
+		// this gets calld automaticly when two object end contact with each other
+		if (contact.bodyA.categoryBitMask == Obstacles.ball.rawValue &&
+			contact.bodyB.categoryBitMask == Obstacles.tray.rawValue)
+		{
+			print("bodyA is ball and bodyB was tray")
+		}
+		
+	}
+	// ---
 	
     override func didMoveToView(view: SKView) {
 		
@@ -52,12 +84,15 @@ class GameScene: SKScene {
 		//var y: CGFloat = CGRectGetMaxY(frame.self)
 		
         /* Setup your scene here */
+		view.showsPhysics = true
+		
         gameOverLabel.text = "Game Over :(";
         gameOverLabel.fontSize = 48;
         gameOverLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2);
 		
 		traySetUp()
 		ballSetUp()
+		physicsWorld.contactDelegate = self
 		
 		let panGesture:UIPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: "moveTray:")
 		view.addGestureRecognizer(panGesture)
@@ -67,23 +102,11 @@ class GameScene: SKScene {
 	// BALL
 	func ballSetUp() // Ustawienia piłki
 	{
-		if (UIDevice.currentDevice().userInterfaceIdiom == .Pad) // iPad Mini bez retiny 7.9"
-		{
-			ball.xScale = 0.6
-			ball.yScale = 0.6
-		}
-		else if (UIDevice.currentDevice().userInterfaceIdiom == .Phone) // 0.3 dla iPhone 6 4.7"
-		{
-			ball.xScale = 0.4
-			ball.yScale = 0.4
-		}
-		
-		movementDirection = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMinY(self.frame)) // początkowy kierunek ruchu piłeczki
-		startBallPosition = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame)) // początkowa pozycja piłeczki
-		moveBallToDirection = SKAction.moveTo(movementDirection, duration: 2.0)
-		ball.position = startBallPosition
+		ball = Ball(imageNamed: "Ball")
 		ball.childNodeWithName("ball")
-		self.addChild(ball)
+		ball.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame)) // początkowa pozycja piłeczki
+		startBallPosition = ball.position
+		addChild(ball)
 		
 		// Log
 		print("\(ball.position)")
@@ -162,6 +185,9 @@ class GameScene: SKScene {
 		case .nothing:
 			move = true
 			//print("move: \(move.boolValue)")
+			
+		default:
+			return
 		}
 	}
 	
@@ -260,33 +286,27 @@ class GameScene: SKScene {
 	// TRAY
 	func traySetUp()
 	{
-		if (UIDevice.currentDevice().userInterfaceIdiom == .Pad)
-		{
-			print("iPad")
-			tray.size.height = 50
-			tray.size.width = 200
-		}
-		else if (UIDevice.currentDevice().userInterfaceIdiom == .Phone)
-		{
-			print("iPhone")
-			tray.size.height = 30
-			tray.size.width = 100
-		}
+		startTrayPosition = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMinY(self.frame) + 30)
+		let pts: String = NSStringFromCGPoint(startTrayPosition)
 		
-		startTrayPosition = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMinY(self.frame) + tray.size.height)
-		tray.position = startTrayPosition
-		self.addChild(tray)
+		let solidStay: [String: String] = [	"ImageName": "Tray",
+											"Location": pts,
+											/*"PlaceMultiplesOnX": "1",*/]
+		
+		tray = Tray(theDict: solidStay)
+		tray.childNodeWithName("tray")
+		addChild(tray)
 	}
 	
 	func moveTray(gesture: UIPanGestureRecognizer)
 	{
-		if (gesture.locationInView(self.view!).x <= tray.position.x + tray.size.width/2 + 50  && // <-- tacką można poruszać tylko jak palec jest nad nią
-			gesture.locationInView(self.view!).x >= tray.position.x - tray.size.width/2 - 50)
+		if (gesture.locationInView(self.view!).x <= tray.position.x/* + tray.size.width/2*/ + 50  && // <-- tacką można poruszać tylko jak palec jest nad nią
+			gesture.locationInView(self.view!).x >= tray.position.x /* - tray.size.width/2*/ - 50)
 		{
 			var translation: CGPoint! = gesture.velocityInView(self.view!)
 			translation.x = (translation.x * 0.055) / 2.8  // Przyspieszenie tacki (iPad Mini 1gen)
 			
-			if (gesture.locationInView(view!).y >= self.frame.size.height - tray.size.height * 2) // <-- Ograniczenie pola poruszania tacką do dołu ekranu
+			if (gesture.locationInView(view!).y >= self.frame.size.height/* - tray.size.height * 2*/) // <-- Ograniczenie pola poruszania tacką do dołu ekranu
 			{
 				if (gesture.velocityInView(view!).x > 0)
 				{
@@ -298,13 +318,13 @@ class GameScene: SKScene {
 				}
 				
 				
-				if (tray.position.x - tray.size.width/2 <= 0)
+				if (tray.position.x/* - tray.size.width/2*/ <= 0)
 				{
-					tray.position.x = 0 + tray.size.width/2
+					tray.position.x = 0 /*+ tray.size.width/2*/
 				}
-				else if (tray.position.x >= self.frame.size.width - tray.size.width/2)
+				else if (tray.position.x >= self.frame.size.width /* - tray.size.width/2*/)
 				{
-					tray.position.x = self.frame.size.width - tray.size.width/2
+					tray.position.x = self.frame.size.width /*- tray.size.width/2*/
 				}
 			}
 			self.tray.runAction(SKAction.moveTo(tray.position, duration: 0))
@@ -338,7 +358,7 @@ class GameScene: SKScene {
 		}
 		else
 		{
-			letBallMove()
+			//etBallMove()
 			//moveBall()
 			//move = true
 		}
