@@ -9,58 +9,13 @@
 import Foundation
 import SpriteKit
 
-class Tray: SKNode {
+class Tray: SKSpriteNode {
 	
-	var hasSomePhysics: Bool = false
 	
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("int(coder:) has not been implemented")
 	}
 	
-	init (theDict: Dictionary<String, String>) {
-		super.init()
-		
-		let image = theDict["ImageName"]
-		let location: CGPoint = CGPointFromString(theDict["Location"]!)
-		self.position = location
-		
-		if ((theDict["PlaceMultiplesOnX"]) != nil)
-		{
-			
-			let amount:Int = Int(theDict["PlaceMultiplesOnX"]!)!
-
-			for (var i = 0; i < amount; i++)
-			{
-				let objectSprite: SKSpriteNode = SKSpriteNode(imageNamed: image!)
-				self.addChild(objectSprite)
-				
-				objectSprite.position = CGPoint(x: objectSprite.size.width * CGFloat(i), y: CGFloat(i) * 6)
-				
-				objectSprite.physicsBody = SKPhysicsBody(rectangleOfSize: objectSprite.size)
-				objectSprite.physicsBody!.dynamic = false
-				objectSprite.physicsBody!.categoryBitMask = Obstacles.tray.rawValue
-				
-			}
-		}
-		else
-		{
-			let objectSprite: SKSpriteNode = SKSpriteNode(imageNamed: image!)
-			self.addChild(objectSprite)
-			
-			hasSomePhysics = true
-			
-			objectSprite.physicsBody = SKPhysicsBody(rectangleOfSize: objectSprite.size)
-			objectSprite.physicsBody?.dynamic = false
-			objectSprite.physicsBody!.categoryBitMask = Obstacles.tray.rawValue
-		}
-	}
-	
-	
-	
-	
-	
-	
-	/*
 	init (imageNamed: String)
 	{
 		let imageTexture = SKTexture(imageNamed: imageNamed)
@@ -83,14 +38,18 @@ class Tray: SKNode {
 		let size: CGSize = CGSizeMake(y, x)
 		super.init(texture: imageTexture, color: UIColor(), size: size)
 		
-		let body: SKPhysicsBody = SKPhysicsBody(circleOfRadius: imageTexture.size().width)
-		body.dynamic = true
-		body.affectedByGravity = true
+		let body: SKPhysicsBody = SKPhysicsBody(rectangleOfSize: self.size)
+		body.affectedByGravity = false
 		body.allowsRotation = false
+		
+		//body.dynamic = false
+		body.categoryBitMask = Obstacles.tray.rawValue
+		body.contactTestBitMask = Obstacles.ball.rawValue
+		body.collisionBitMask = Obstacles.nothing.rawValue
+		body.usesPreciseCollisionDetection = false
 		
 		self.physicsBody = body
 	}
-	*/
 	
 	func update() {
 		// this instance will update when told to by the GameScene class

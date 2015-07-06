@@ -9,17 +9,16 @@
 import SpriteKit
 
 enum Obstacles: UInt32 {
-	case ball
-	case nothing
-	
-	case wallBottom
-	case wallTop
-	case wallLeft
-	case wallRight
-	
-	case tray
-	
-	case brick
+	case nothing		= 0
+	case ball			= 1
+	case tray			= 2
+
+	case wallBottom		= 3
+	case wallTop		= 4
+	case wallLeft		= 5
+	case wallRight		= 6
+
+	case brick			= 7
 }
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
@@ -30,6 +29,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	//let tray = SKSpriteNode(imageNamed: "Tray")
 	var tray:Tray!
 	
+	var wall:Walls!
+	
 	let gameOverLabel = SKLabelNode(fontNamed:"Chalkduster")
 	
 	var moveBallToDirection = SKAction()
@@ -39,6 +40,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var reflectionAngle = 1
 	var move: Bool = true
 	var gameIsOver: Bool = false
+	var ballIsInMiddleOfMoving: Bool = false
 	
 	//var obstacle: Bool = false
 	
@@ -52,92 +54,109 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	// Collision in SpriteKit
 	func didBeginContact(contact: SKPhysicsContact) {
+
+		print("Contact!")
+
 		// this gets calld automaticly when two object begin contact with each other
 		
-		let contactMask = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+		var firstBody: SKPhysicsBody
+		var secondBody: SKPhysicsBody
 		
-		switch(contactMask) {
-		case Obstacles.ball.rawValue | Obstacles.tray.rawValue:
-			hitInTray() // Odbija się :) 
-			
-		default:
-			return
+		if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask
+		{
+			firstBody = contact.bodyA
+			secondBody = contact.bodyB
+		}
+		else
+		{
+			firstBody = contact.bodyB
+			secondBody = contact.bodyA
 		}
 
+		if ((firstBody.categoryBitMask & Obstacles.ball.rawValue != 0) &&
+			(secondBody.categoryBitMask & Obstacles.tray.rawValue != 0))
+		{
+			hitInTray()
+		}
+		else if ((firstBody.categoryBitMask & Obstacles.ball.rawValue != 0) &&
+				(secondBody.categoryBitMask & Obstacles.wallTop.rawValue != 0))
+		{
+			print("Zief")
+			hitInTop()
+		}
 	}
-	
+
+
 	func didEndContact(contact: SKPhysicsContact) {
 		// this gets calld automaticly when two object end contact with each other
-		if (contact.bodyA.categoryBitMask == Obstacles.ball.rawValue &&
-			contact.bodyB.categoryBitMask == Obstacles.tray.rawValue)
-		{
-			print("bodyA is ball and bodyB was tray")
-		}
-		
 	}
 	// ---
 	
     override func didMoveToView(view: SKView) {
 		
 		/* Setup veriables */
-		//var x: CGFloat = CGRectGetMaxX(frame.self)
-		//var y: CGFloat = CGRectGetMaxY(frame.self)
+		let size: CGSize = CGSizeMake(self.size.width, 1)
+		let location: CGPoint = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame))
+		
+		let passData: [String: String] = [
+			"Size" : NSStringFromCGSize(size),
+			"Location" : NSStringFromCGPoint(location),
+		]
+		
+		let topWall = Walls(passData: passData)
+		addChild(topWall)
 		
         /* Setup your scene here */
 		view.showsPhysics = true
-		
-        gameOverLabel.text = "Game Over :(";
-        gameOverLabel.fontSize = 48;
-        gameOverLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2);
+		view.showsFPS = true
+		view.showsNodeCount = true
 		
 		traySetUp()
 		ballSetUp()
+		
+		physicsWorld.gravity = CGVectorMake(0, 0)
 		physicsWorld.contactDelegate = self
 		
 		let panGesture:UIPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: "moveTray:")
 		view.addGestureRecognizer(panGesture)
-    }
-	
+		
+	}
 	
 	// BALL
 	func ballSetUp() // Ustawienia piłki
 	{
 		ball = Ball(imageNamed: "Ball")
-		ball.childNodeWithName("ball")
 		ball.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame)) // początkowa pozycja piłeczki
 		startBallPosition = ball.position
 		addChild(ball)
-		
-		// Log
-		print("\(ball.position)")
-		// ---
-		
-		}
+	}
 	
 	func letBallMove()
 	{
-		//myLabel.removeFromParent()
-		
 		// Wprawić w ruch piłeczkę
-		moveBallToDirection = SKAction.moveTo(movementDirection, duration: 2.0)
+		movementDirection = tray.position
+		moveBallToDirection = SKAction.moveTo(movementDirection, duration: NSTimeInterval(2.0))
 		ball.runAction(moveBallToDirection)
 
-		ball.runAction(SKAction.repeatActionForever(SKAction.sequence([
-			SKAction.runBlock(moveBall),
-			SKAction.waitForDuration(0.1)
-			])))
-		// ---
+		//ball.runAction(SKAction.repeatActionForever(SKAction.sequence([
+			//SKAction.runBlock(moveBall),
+			//SKAction.waitForDuration(0.1) // 0.1
+			//])))
 	}
-	
+
+/*
 	func moveBall()
 	{
-		if (ball.position.y /*+ ball.size.height/2*/ <= tray.position.y /*+ tray.size.height*/) // Tray
+		if (ball.position.y + ball.size.height/2 <= tray.position.y + tray.size.height)
 		{
-			obstaclesType = Obstacles.tray
-		}
-		else if (ball.position.y - ball.size.height/2 <= CGRectGetMinY(self.frame)) // Dół
-		{
-			obstaclesType = Obstacles.wallBottom
+			if (ball.position.x <= tray.position.x + tray.size.width/2 && ball.position.x >= tray.position.x - tray.size.width/2) // Tray
+			{
+				obstaclesType = Obstacles.tray
+			}
+			else // Dół
+			{
+				obstaclesType = Obstacles.wallBottom
+			}
 		}
 		else if (ball.position.y + ball.size.height/2 >= CGRectGetMaxY(self.frame)) // Góra
 		{
@@ -157,34 +176,38 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				obstaclesType = Obstacles.wallLeft
 			}
 		}
-		
 		checkObstacles()
 	}
-	
+*/
 	func checkObstacles()
 	{
 		switch obstaclesType {
 		case .wallTop:
 			//print("Top")
 			hitInTop()
+			
 		case .wallBottom:
 			//print("Bottom")
 			hitInBottom()
+			
 		case .wallLeft:
 			//print("Left Wall")
 			hitInLeftWall()
+			
 		case .wallRight:
 			//print("Right Wall")
 			hitInRightWall()
+			
 		case .tray:
-			//print("Tray")
-			hitInTray()
+			print("Tray")
+			//hitInTray()
+			
 		case .brick:
 			//print("Brick")
 			hitInBrick()
+			
 		case .nothing:
-			move = true
-			//print("move: \(move.boolValue)")
+			print("move: \(move)")
 			
 		default:
 			return
@@ -193,15 +216,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func hitInTray()
 	{
-		if (move)
-		{
-			print("Tacka")
+
+			print("hitInTray")
 			
 			x = movementDirection.x
 			y = movementDirection.y
 			
-			print("x: \(x), y: \(y)")
-			print("ball: \(ball.position.x), y: \(ball.position.y + ball.size.height/2)")
+			//print("x: \(x), y: \(y)")
+			//print("ball: \(ball.position.x), y: \(ball.position.y + ball.size.height/2)")
 			
 			y = CGRectGetMaxY(frame.self)
 			x = frame.size.width/2
@@ -210,17 +232,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			moveBallToDirection = SKAction.moveTo(movementDirection, duration: 2.0)
 			ball.runAction(moveBallToDirection)
-			move = false
-		}
-		
+
 		obstaclesType = Obstacles.nothing
 	}
 	
 	func hitInTop()
 	{
-		if (move)
-		{
-			print("Sufit")
+		print("move: \(move)")
+print("hitInTop")
 			
 			x = movementDirection.x
 			y = movementDirection.y
@@ -232,15 +251,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			moveBallToDirection = SKAction.moveTo(movementDirection, duration: 2.0)
 			ball.runAction(moveBallToDirection)
-			move = false
-		}
+
 		obstaclesType = Obstacles.nothing
 	}
 	
 	func hitInLeftWall()
 	{
-		if (move)
-		{
+
 			print("Lewa ściana")
 			
 			x = movementDirection.x
@@ -249,15 +266,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			moveBallToDirection = SKAction.moveTo(movementDirection, duration: 2.0)
 			ball.runAction(moveBallToDirection)
-			move = false
-		}
+
 		obstaclesType = Obstacles.nothing
 	}
 	
 	func hitInRightWall()
 	{
-		if (move)
-		{
+
 			print("Prawa ściana")
 			x = movementDirection.x
 			y = movementDirection.y
@@ -266,8 +281,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			moveBallToDirection = SKAction.moveTo(movementDirection, duration: 2.0)
 			ball.runAction(moveBallToDirection)
 
-			move = false
-		}
+
 		obstaclesType = Obstacles.nothing
 	}
 	func hitInBrick()
@@ -277,7 +291,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func hitInBottom()
 	{
-		gameOver()
+
+			print("Game Over")
+			gameOverLabel.childNodeWithName("GameOver")
+			gameOverLabel.text = "Game Over :(";
+			gameOverLabel.fontSize = 48;
+			gameOverLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2);
+			addChild(gameOverLabel)
+			ball.removeAllActions()
+			ball.removeFromParent()
+			tray.removeAllActions()
+			tray.removeFromParent()
+
+			gameIsOver = true
+
+		
+		obstaclesType = Obstacles.nothing
 	}
 	
 	// ---
@@ -287,26 +316,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	func traySetUp()
 	{
 		startTrayPosition = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMinY(self.frame) + 30)
-		let pts: String = NSStringFromCGPoint(startTrayPosition)
-		
-		let solidStay: [String: String] = [	"ImageName": "Tray",
-											"Location": pts,
-											/*"PlaceMultiplesOnX": "1",*/]
-		
-		tray = Tray(theDict: solidStay)
-		tray.childNodeWithName("tray")
+		tray = Tray(imageNamed: "Tray")
+		tray.position = startTrayPosition
 		addChild(tray)
 	}
 	
 	func moveTray(gesture: UIPanGestureRecognizer)
 	{
-		if (gesture.locationInView(self.view!).x <= tray.position.x/* + tray.size.width/2*/ + 50  && // <-- tacką można poruszać tylko jak palec jest nad nią
-			gesture.locationInView(self.view!).x >= tray.position.x /* - tray.size.width/2*/ - 50)
+		if (gesture.locationInView(self.view!).x <= tray.position.x + tray.size.width/2 && // <-- tacką można poruszać tylko jak palec jest nad nią
+			gesture.locationInView(self.view!).x >= tray.position.x - tray.size.width/2)
 		{
 			var translation: CGPoint! = gesture.velocityInView(self.view!)
-			translation.x = (translation.x * 0.055) / 2.8  // Przyspieszenie tacki (iPad Mini 1gen)
+			//translation.x = (translation.x * 0.055) / 2.8		// Przyspieszenie tacki (iPad Mini 1gen)
+			translation.x = (translation.x * 0.113) / 2.8		// Przyspieszenie tacki (iPhone 6 Symulatot)
 			
-			if (gesture.locationInView(view!).y >= self.frame.size.height/* - tray.size.height * 2*/) // <-- Ograniczenie pola poruszania tacką do dołu ekranu
+			if (gesture.locationInView(view!).y >= self.frame.size.height - tray.size.height * 2) // <-- Ograniczenie pola poruszania tacką do dołu ekranu
 			{
 				if (gesture.velocityInView(view!).x > 0)
 				{
@@ -317,50 +341,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					tray.position.x += translation.x
 				}
 				
-				
-				if (tray.position.x/* - tray.size.width/2*/ <= 0)
+				if (tray.position.x - tray.size.width/2 <= 0)
 				{
-					tray.position.x = 0 /*+ tray.size.width/2*/
+					tray.position.x = 0 + tray.size.width/2
 				}
-				else if (tray.position.x >= self.frame.size.width /* - tray.size.width/2*/)
+				else if (tray.position.x >= self.frame.size.width - tray.size.width/2)
 				{
-					tray.position.x = self.frame.size.width /*- tray.size.width/2*/
+					tray.position.x = self.frame.size.width - tray.size.width/2
 				}
 			}
-			self.tray.runAction(SKAction.moveTo(tray.position, duration: 0))
+			tray.runAction(SKAction.moveTo(tray.position, duration: 0))
 		}
 	}
 	// ---
 	
-	func gameOver()
-	{
-		print("Game Over!")
-		self.addChild(gameOverLabel)
-		ball.removeAllActions()
-		ball.removeFromParent()
-		tray.removeAllActions()
-		tray.removeFromParent()
-		move = false
-		gameIsOver = true
-		//ballSetUp()
-		//traySetUp()
-	}
-	
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         /* Called when a touch begins */
-		
 		if (gameIsOver)
 		{
 			ballSetUp()
 			traySetUp()
 			gameOverLabel.removeFromParent()
 			gameIsOver = false
+			ballIsInMiddleOfMoving = false
 		}
 		else
 		{
-			//etBallMove()
-			//moveBall()
-			//move = true
+			if (!ballIsInMiddleOfMoving)
+			{
+				letBallMove()
+				ballIsInMiddleOfMoving = true
+			}
 		}
 	}
    

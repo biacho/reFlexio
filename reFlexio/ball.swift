@@ -37,11 +37,11 @@ class Ball: SKSpriteNode {
 		super.init(texture: imageTexture, color: UIColor(), size: size)
 		
 		let body: SKPhysicsBody = SKPhysicsBody(circleOfRadius: imageTexture.size().width / 4.6)
-		//body.dynamic = true
-		//body.affectedByGravity = true
-		body.allowsRotation = false
+		body.dynamic = true
 		body.categoryBitMask = Obstacles.ball.rawValue
-		body.contactTestBitMask = Obstacles.tray.rawValue
+		//body.contactTestBitMask = Obstacles.tray.rawValue
+		body.collisionBitMask = Obstacles.nothing.rawValue
+		body.usesPreciseCollisionDetection = false
 		
 		self.physicsBody = body
 	}
