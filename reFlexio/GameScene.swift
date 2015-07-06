@@ -59,30 +59,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 		// this gets calld automaticly when two object begin contact with each other
 		
-		var firstBody: SKPhysicsBody
-		var secondBody: SKPhysicsBody
+		var firstBody: SKPhysicsBody = contact.bodyB
+		var secondBody: SKPhysicsBody = contact.bodyA
 		
-		if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask
-		{
-			firstBody = contact.bodyA
-			secondBody = contact.bodyB
-		}
-		else
-		{
-			firstBody = contact.bodyB
-			secondBody = contact.bodyA
-		}
-
-		if ((firstBody.categoryBitMask & Obstacles.ball.rawValue != 0) &&
-			(secondBody.categoryBitMask & Obstacles.tray.rawValue != 0))
+		if (secondBody.categoryBitMask == 2)
 		{
 			hitInTray()
 		}
-		else if ((firstBody.categoryBitMask & Obstacles.ball.rawValue != 0) &&
-				(secondBody.categoryBitMask & Obstacles.wallTop.rawValue != 0))
+		else if (secondBody.categoryBitMask == 4)
 		{
-			print("Zief")
 			hitInTop()
+		}
+		else if (secondBody.categoryBitMask == 3)
+		{
+			hitInBottom()
 		}
 	}
 
@@ -95,16 +85,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func didMoveToView(view: SKView) {
 		
 		/* Setup veriables */
-		let size: CGSize = CGSizeMake(self.size.width, 1)
-		let location: CGPoint = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame))
+		let sizeWallTop: CGSize = CGSizeMake(self.size.width, 1)
+		let locationWallTop: CGPoint = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame))
+		let sizeWallBottom: CGSize = CGSizeMake(self.size.width, 1)
+		let locationWallBottom: CGPoint = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMinY(self.frame))
 		
 		let passData: [String: String] = [
-			"Size" : NSStringFromCGSize(size),
-			"Location" : NSStringFromCGPoint(location),
+			"Size_WallTop" : NSStringFromCGSize(sizeWallTop),
+			"Location_WallTop" : NSStringFromCGPoint(locationWallTop),
+			"Size_WallBottom" : NSStringFromCGSize(sizeWallBottom),
+			"Location_WallBottom" : NSStringFromCGPoint(locationWallBottom),
 		]
 		
-		let topWall = Walls(passData: passData)
-		addChild(topWall)
+		let wall = Walls(passData: passData)
+		addChild(wall)
+		
+
 		
         /* Setup your scene here */
 		view.showsPhysics = true
