@@ -58,8 +58,39 @@ class Walls: SKNode { // SKSpriteNode {
 		addChild(wallBottom)
 		
 		/* Left Bottom */
-		
+		let sizeWallLeft: CGSize = CGSizeFromString(passData["Size_WallLeft"]!)
+		let locationWallLeft: CGPoint = CGPointFromString(passData["Location_WallLeft"]!)
+		let wallLeft: SKSpriteNode = SKSpriteNode(color: UIColor.redColor(), size: sizeWallLeft)
+		wallLeft.physicsBody?.affectedByGravity = false
+		wallLeft.physicsBody?.allowsRotation = false
+		let positionWallLeftX = locationWallLeft.x
+		let positionWallLeftY = locationWallLeft.y
+		wallLeft.position = CGPointMake(positionWallLeftX, positionWallLeftY)
+		wallLeft.physicsBody = SKPhysicsBody(rectangleOfSize: wallLeft.size)
+		wallLeft.physicsBody!.dynamic = false
+		wallLeft.physicsBody!.categoryBitMask = Obstacles.wallLeft.rawValue
+		wallLeft.physicsBody!.contactTestBitMask = Obstacles.ball.rawValue
+		wallLeft.physicsBody!.collisionBitMask = Obstacles.nothing.rawValue
+		wallLeft.physicsBody!.usesPreciseCollisionDetection = false
+		addChild(wallLeft)
+
 		/* Right Bottom */
+		let sizeWallRight: CGSize = CGSizeFromString(passData["Size_WallRight"]!)
+		let locationWallRight: CGPoint = CGPointFromString(passData["Location_WallRight"]!)
+		let wallRight: SKSpriteNode = SKSpriteNode(color: UIColor.redColor(), size: sizeWallRight)
+		wallRight.physicsBody?.affectedByGravity = false
+		wallRight.physicsBody?.allowsRotation = false
+		let positionWallRightX = locationWallRight.x
+		let positionWallRightY = locationWallRight.y
+		wallRight.position = CGPointMake(positionWallRightX, positionWallRightY)
+		wallRight.physicsBody = SKPhysicsBody(rectangleOfSize: wallRight.size)
+		wallRight.physicsBody!.dynamic = false
+		wallRight.physicsBody!.categoryBitMask = Obstacles.wallRight.rawValue
+		wallRight.physicsBody!.contactTestBitMask = Obstacles.ball.rawValue
+		wallRight.physicsBody!.collisionBitMask = Obstacles.nothing.rawValue
+		wallRight.physicsBody!.usesPreciseCollisionDetection = false
+		addChild(wallRight)
+
 	}
 	
 	func update() {
