@@ -26,7 +26,7 @@ class Walls: SKNode { // SKSpriteNode {
 		/* Wall Top */
 		let sizeWallTop: CGSize = CGSizeFromString(passData["Size_WallTop"]!)
 		let locationWallTop: CGPoint = CGPointFromString(passData["Location_WallTop"]!)
-		let wallTop: SKSpriteNode = SKSpriteNode(color: UIColor.redColor(), size: sizeWallTop)
+		let wallTop: SKSpriteNode = SKSpriteNode(color: UIColor(), size: sizeWallTop)
 		wallTop.physicsBody?.affectedByGravity = false
 		wallTop.physicsBody?.allowsRotation = false
 		let positionX = locationWallTop.x
@@ -43,7 +43,7 @@ class Walls: SKNode { // SKSpriteNode {
 		/* Wall Bottom */
 		let sizeWallBottom: CGSize = CGSizeFromString(passData["Size_WallBottom"]!)
 		let locationWallBottom: CGPoint = CGPointFromString(passData["Location_WallBottom"]!)
-		let wallBottom: SKSpriteNode = SKSpriteNode(color: UIColor.redColor(), size: sizeWallBottom)
+		let wallBottom: SKSpriteNode = SKSpriteNode(color: UIColor(), size: sizeWallBottom)
 		wallBottom.physicsBody?.affectedByGravity = false
 		wallBottom.physicsBody?.allowsRotation = false
 		let positionWallBottomX = locationWallBottom.x
@@ -57,10 +57,10 @@ class Walls: SKNode { // SKSpriteNode {
 		wallBottom.physicsBody!.usesPreciseCollisionDetection = false
 		addChild(wallBottom)
 		
-		/* Left Bottom */
+		/* Left  */
 		let sizeWallLeft: CGSize = CGSizeFromString(passData["Size_WallLeft"]!)
 		let locationWallLeft: CGPoint = CGPointFromString(passData["Location_WallLeft"]!)
-		let wallLeft: SKSpriteNode = SKSpriteNode(color: UIColor.redColor(), size: sizeWallLeft)
+		let wallLeft: SKSpriteNode = SKSpriteNode(color: UIColor(), size: sizeWallLeft)
 		wallLeft.physicsBody?.affectedByGravity = false
 		wallLeft.physicsBody?.allowsRotation = false
 		let positionWallLeftX = locationWallLeft.x
@@ -74,10 +74,10 @@ class Walls: SKNode { // SKSpriteNode {
 		wallLeft.physicsBody!.usesPreciseCollisionDetection = false
 		addChild(wallLeft)
 
-		/* Right Bottom */
+		/* Right  */
 		let sizeWallRight: CGSize = CGSizeFromString(passData["Size_WallRight"]!)
 		let locationWallRight: CGPoint = CGPointFromString(passData["Location_WallRight"]!)
-		let wallRight: SKSpriteNode = SKSpriteNode(color: UIColor.redColor(), size: sizeWallRight)
+		let wallRight: SKSpriteNode = SKSpriteNode(color: UIColor(), size: sizeWallRight)
 		wallRight.physicsBody?.affectedByGravity = false
 		wallRight.physicsBody?.allowsRotation = false
 		let positionWallRightX = locationWallRight.x

@@ -2,15 +2,17 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "ball64x64.png",
+      "filename" : "bacground1024.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
+      "filename" : "bacground1024-1.png",
       "scale" : "2x"
     },
     {
       "idiom" : "universal",
+      "filename" : "bacground1024-2.png",
       "scale" : "3x"
     }
   ],

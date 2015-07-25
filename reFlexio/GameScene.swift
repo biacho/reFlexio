@@ -25,8 +25,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var ball:Ball!
 	var tray:Tray!
 	var wall:Walls!
-	var obstaclesType = Obstacles.nothing
+	var brick:Brick!
+	
 	let gameOverLabel = SKLabelNode(fontNamed:"Chalkduster")
+	var restartLabel = SKLabelNode(fontNamed:"Chalkduster")
+
+	var pointsLabel = SKLabelNode(fontNamed:"Chalkduster")
+	var pointsNumberFormatter = NSNumberFormatter()
+	var pointsNumber = Int()
+	
+	var lifesLabel = SKLabelNode()
+	
+	var playingTime = SKLabelNode(fontNamed:"Chalkduster")
+	var timerNumber = Int()
+	var timer = NSTimer()
 	
 	var moveBallToDirection = SKAction()
 	var startBallPosition = CGPoint() // Pocztkowa pozycja piłeczki
@@ -34,6 +46,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var movementDirection = CGPoint() // Kierynek w którym porusza się piłeczka
 	var gameIsOver: Bool = false
 	var ballIsInMiddleOfMoving: Bool = false
+	var stillAChance: Bool = false
 
 
 	/* Set Up Move */
@@ -67,22 +80,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		{
 			hitInRightWall()
 		}
+		else if (secondBody.categoryBitMask == 7)
+		{
+			hitInBrick()
+			secondBody.node?.removeFromParent()
+		}
 	}
+	
+	
 	
 	override func didMoveToView(view: SKView) {
 		
+		/* Background && Top Line*/
+		let bgImage = SKSpriteNode(imageNamed: "Background")
+		bgImage.position = CGPointMake(CGRectGetWidth(self.frame)/2, CGRectGetHeight(self.frame)/2)
+		
+		let bgLine = SKSpriteNode(color: UIColor.whiteColor(), size: CGSizeMake(self.frame.size.width, 1))
+		bgLine.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 60)
+
+		addChild(bgImage)
+		addChild(bgLine)
+		
+		
+		
 		/* Setup veriables */
 		let sizeWallTop: CGSize = CGSizeMake(self.size.width, 1)
-		let locationWallTop: CGPoint = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame))
+		let locationWallTop: CGPoint = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 60)
 		
 		let sizeWallBottom: CGSize = CGSizeMake(self.size.width, 1)
 		let locationWallBottom: CGPoint = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMinY(self.frame))
 		
-		let sizeWallLeft: CGSize = CGSizeMake(1, self.size.height)
-		let locationWallLeft: CGPoint = CGPointMake(0, CGRectGetMidY(self.frame))
+		let sizeWallLeft: CGSize = CGSizeMake(1, self.size.height - 60)
+		let locationWallLeft: CGPoint = CGPointMake(CGRectGetMinX(self.frame), CGRectGetMidY(self.frame) - 30)
 		
-		let sizeWallRight: CGSize = CGSizeMake(1, self.size.height)
-		let locationWallRight: CGPoint = CGPointMake(CGRectGetMaxX(self.frame), CGRectGetMidY(self.frame))
+		let sizeWallRight: CGSize = CGSizeMake(1, self.size.height - 60)
+		let locationWallRight: CGPoint = CGPointMake(CGRectGetMaxX(self.frame), CGRectGetMidY(self.frame) - 30)
 		
 		let passData: [String: String] = [
 			"Size_WallTop" : NSStringFromCGSize(sizeWallTop),
@@ -98,19 +130,50 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		let wall = Walls(passData: passData)
 		addChild(wall)
 		
+		/* Point's Label */
+		pointsNumberFormatter.minimumIntegerDigits = 5
+		pointsNumber = 0
+		pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
+		pointsLabel.fontSize = 38
+		pointsLabel.position = CGPointMake(CGRectGetMaxX(self.frame) - (pointsLabel.frame.size.width + 20), CGRectGetMaxY(self.frame) - 45);
+		pointsLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
+		self.addChild(pointsLabel)
+		
+		/* Life Label */
+		lifesLabel.text = "🏈🏈🏈"
+		lifesLabel.fontSize = 38
+		lifesLabel.position = CGPointMake(CGRectGetMidX(self.frame) - lifesLabel.frame.size.width/2, CGRectGetMaxY(self.frame) - 45)
+		lifesLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
+		self.addChild(lifesLabel)
+		
+		/* Play Time Label */
+		timerNumber = 0
+		playingTime.text = "Time: \(timerNumber)"
+		playingTime.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
+		playingTime.fontSize = 38
+		playingTime.position = CGPointMake(CGRectGetMinX(self.frame) + 15, CGRectGetMaxY(self.frame) - 45);
+		self.addChild(playingTime)
+		
 		/* Setup your scene here */
-		view.showsPhysics = true
-		view.showsFPS = true
-		view.showsNodeCount = true
+		//view.showsPhysics = true
+		//view.showsFPS = true
+		//view.showsNodeCount = true
 		
 		traySetUp()
 		ballSetUp()
+		brickSetUp()
 		
 		physicsWorld.gravity = CGVectorMake(0, 0)
 		physicsWorld.contactDelegate = self
 		
 		let panGesture:UIPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: "moveTray:")
 		view.addGestureRecognizer(panGesture)
+	}
+	
+	
+	func counter()
+	{
+		playingTime.text = "Time: \(timerNumber++)"
 	}
 	
 	// BALL
@@ -126,37 +189,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	{
 		if (direction == "Up_Left")
 		{
-			//print("Up Left")
 			moveBallToDirection = SKAction.moveBy(CGVectorMake(-1*ballSpeed, 1*ballSpeed), duration: 0.001)
 		}
 		else if (direction == "Up_Right")
 		{
-			//print("Up Right")
 			moveBallToDirection = SKAction.moveBy(CGVectorMake(1*ballSpeed, 1*ballSpeed), duration: 0.001)
 		}
 		else if (direction == "Down_Left")
 		{
-			//print("Down Left")
 			moveBallToDirection = SKAction.moveBy(CGVectorMake(-1*ballSpeed, -1*ballSpeed), duration: 0.001)
 		}
 		else if (direction == "Down_Right")
 		{
-			//print("Down Right")
 			moveBallToDirection = SKAction.moveBy(CGVectorMake(1*ballSpeed, -1*ballSpeed), duration: 0.001)
 		}
 		else if (direction == "Down")
 		{
-			//print("Down")
 			moveBallToDirection = SKAction.moveBy(CGVectorMake(0, -1*ballSpeed), duration: 0.001)
 		}
 		else if (direction == "Up")
 		{
-			//print("Up")
 			moveBallToDirection = SKAction.moveBy(CGVectorMake(0, 1*ballSpeed), duration: 0.001)
 		}
 		else if (direction == "Stop")
 		{
-			//print("Stop")
 			moveBallToDirection = SKAction.moveBy(CGVectorMake(0, 0), duration: 0.001)
 		}
 		
@@ -164,52 +220,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		ball.runAction(moveBallToDirection)
 	}
 	
-	func checkObstacles()
-	{
-		switch obstaclesType {
-		case .wallTop:
-			//print("Top")
-			hitInTop()
-			
-		case .wallBottom:
-			//print("Bottom")
-			hitInBottom()
-			
-		case .wallLeft:
-			//print("Left Wall")
-			hitInLeftWall()
-			
-		case .wallRight:
-			//print("Right Wall")
-			hitInRightWall()
-			
-		case .tray:
-			print("Tray")
-			//hitInTray()
-			
-		case .brick:
-			//print("Brick")
-			hitInBrick()
-			
-		case .nothing:
-			return
-			
-		default:
-			return
-		}
-	}
-
 	func hitInTray()
 	{
 		print("hitInTray")
 		
 		if (ballMoveDirection == "Down_Left")
 		{
-			moveBall(ballSpeed, direction: "Up_Right")
+			moveBall(ballSpeed, direction: "Up_Left")
 		}
 		else if  (ballMoveDirection == "Down_Right")
 		{
-			moveBall(ballSpeed, direction: "Up_Left")
+			moveBall(ballSpeed, direction: "Up_Right")
 		}
 		else
 		{
@@ -219,7 +240,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			moveBall(ballSpeed, direction: randomDirection)
 		}
 		
-		obstaclesType = Obstacles.nothing
+		pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber++)!)"
 	}
 	
 	func hitInTop()
@@ -238,8 +259,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		{
 			moveBall(ballSpeed, direction: "Down")
 		}
-		
-		obstaclesType = Obstacles.nothing
 	}
 	
 	func hitInLeftWall()
@@ -255,13 +274,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		{
 			moveBall(ballSpeed, direction: "Up_Right")
 		}
-		
-		obstaclesType = Obstacles.nothing
 	}
 	
 	func hitInRightWall()
 	{
-		print("Prawa ściana")
+		print("hitInRightWall")
 
 		if (ballMoveDirection == "Down_Right")
 		{
@@ -271,40 +288,101 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		{
 			moveBall(ballSpeed, direction: "Up_Left")
 		}
-		
-		obstaclesType = Obstacles.nothing
 	}
+	
 	func hitInBrick()
 	{
-		print("Not yet :(")
+		// TODO: Dodać odbicie z boku i od góry
+		if (ballMoveDirection == "Up_Left")
+		{
+			moveBall(ballSpeed, direction: "Down_Left")
+		}
+		else if (ballMoveDirection == "Up_Right")
+		{
+			moveBall(ballSpeed, direction: "Down_Right")
+		}
+		else
+		{
+			moveBall(ballSpeed, direction: "Down")
+		}
+		
+		pointsNumber += 50
+		pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
 	}
 	
 	func hitInBottom()
 	{
-		print("Game Over")
-		gameOverLabel.childNodeWithName("GameOver")
-		gameOverLabel.text = "Game Over :(";
-		gameOverLabel.fontSize = 48;
-		gameOverLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2);
-		addChild(gameOverLabel)
-		ball.removeAllActions()
-		ball.removeFromParent()
-		tray.removeAllActions()
-		tray.removeFromParent()
-		
-		gameIsOver = true
-		ballIsInMiddleOfMoving = false
-		
-		obstaclesType = Obstacles.nothing
+		if (lifesLabel.text?.characters.count >= 2)
+		{
+			var str = lifesLabel.text!
+			str.removeAtIndex(str.endIndex.predecessor())
+			lifesLabel.text = str
+			
+			ball.removeAllActions()
+			ball.removeFromParent()
+			tray.removeAllActions()
+			tray.removeFromParent()
+			
+			restartLabel.text = "Tap to Restart";
+			restartLabel.fontSize = 48;
+			restartLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2);
+			addChild(restartLabel)
+			
+			ballIsInMiddleOfMoving = false
+			stillAChance = true
+		}
+		else
+		{
+			print("Game Over")
+			gameOverLabel.childNodeWithName("GameOver")
+			gameOverLabel.text = "Game Over :(";
+			gameOverLabel.fontSize = 48;
+			gameOverLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2);
+			pointsNumber = 0
+			timer.invalidate()
+			timerNumber = 0
+			playingTime.text = "Time: 0"
+			playingTime.removeFromParent()
+			pointsLabel.removeFromParent()
+			lifesLabel.removeFromParent()
+			addChild(gameOverLabel)
+			
+			ball.removeAllActions()
+			ball.removeFromParent()
+			tray.removeAllActions()
+			tray.removeFromParent()
+			
+			gameIsOver = true
+			stillAChance = false
+			ballIsInMiddleOfMoving = false
+		}
 	}
 	
 	// ---
 	
+	// BRICK
+	func brickSetUp()
+	{
+		let location = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 150)
+		let bricksNumber: NSNumber = 1
+		
+		let theDick: [String: String] =
+		[
+			"ImageName": "Brick_Green",
+			"Location": NSStringFromCGPoint(location),
+			"PlaceMultiplesOnX": bricksNumber.stringValue
+		]
+		
+		brick = Brick(theDict: theDick)
+		//brick.name! = "Zief :)"
+		addChild(brick)
+	}
+	// ---
 	
 	// TRAY
 	func traySetUp()
 	{
-		startTrayPosition = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMinY(self.frame) + 30)
+		startTrayPosition = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMinY(self.frame) + 70)
 		tray = Tray(imageNamed: "Tray")
 		tray.position = startTrayPosition
 		addChild(tray)
@@ -316,31 +394,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			gesture.locationInView(self.view!).x >= tray.position.x - tray.size.width/2)
 		{
 			var translation: CGPoint! = gesture.velocityInView(self.view!)
-			//translation.x = (translation.x * 0.055) / 2.8		// Przyspieszenie tacki (iPad Mini 1gen)
-			translation.x = (translation.x * 0.113) / 2.8		// Przyspieszenie tacki (iPhone 6 Symulatot)
+			translation.x = (translation.x * 0.055) / 2.8		// Przyspieszenie tacki (iPad Mini 1gen)
+			//translation.x = (translation.x * 0.113) / 2.8		// Przyspieszenie tacki (iPhone 6 Symulatot)
 			
-			if (gesture.locationInView(view!).y >= self.frame.size.height - tray.size.height * 2) // <-- Ograniczenie pola poruszania tacką do dołu ekranu
+			if (gesture.locationInView(self.view!).y >= self.frame.size.height - tray.size.height * 2) // <-- Ograniczenie pola poruszania tacką do dołu ekranu
 			{
-				if (gesture.velocityInView(view!).x > 0)
+				if (gesture.velocityInView(self.view!).x > 0)
 				{
 					tray.position.x += translation.x
 				}
-				else if (gesture.velocityInView(view!).x < 0)
+				else if (gesture.velocityInView(self.view!).x < 0)
 				{
 					tray.position.x += translation.x
 				}
 				
-				if (tray.position.x - tray.size.width/2 <= 0)
+				if (tray.position.x - tray.size.width/2 <= 1)
 				{
-					tray.position.x = 0 + tray.size.width/2
+					tray.position.x = 1 + tray.size.width/2 // Musi być 1 bo przy wartości 0, tacka zatrzymująca się na ścianie powoduje odbicie piłki, nie wiem czemu tak jest
 				}
 				else if (tray.position.x >= self.frame.size.width - tray.size.width/2)
 				{
-					tray.position.x = self.frame.size.width - tray.size.width/2
+					tray.position.x = self.frame.size.width - 1 - tray.size.width/2
 				}
 			}
-			tray.runAction(SKAction.moveTo(tray.position, duration: 0))
 		}
+		
+		tray.runAction(SKAction.moveTo(tray.position, duration: 0))
 	}
 	// ---
 	
@@ -350,15 +429,43 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		{
 			ballSetUp()
 			traySetUp()
+			brickSetUp()
+			
+			pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
+			self.addChild(pointsLabel)
+			
+			playingTime.text = "Time: \(timerNumber)"
+			self.addChild(playingTime)
+			
+			lifesLabel.text = "🏈🏈🏈"
+			self.addChild(lifesLabel)
+			
 			gameOverLabel.removeFromParent()
 			gameIsOver = false
+			stillAChance = false
 			ballIsInMiddleOfMoving = false
+		}
+		else if (stillAChance)
+		{
+			restartLabel.removeFromParent()
+			
+			ballSetUp()
+			traySetUp()
+			stillAChance = false
+			
+			moveBall(ballSpeed, direction:"Down")
+			ballIsInMiddleOfMoving = true
 		}
 		else
 		{
 			if (!ballIsInMiddleOfMoving)
 			{
-				moveBall(ballSpeed, direction: "Down")
+				if (!timer.valid)
+				{
+					timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("counter"), userInfo: nil, repeats: true)
+				}
+				
+				moveBall(ballSpeed, direction:"Down")
 				ballIsInMiddleOfMoving = true
 			}
 		}
@@ -368,7 +475,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		/* Called before each frame is rendered */
 		if (!gameIsOver)
 		{
-			moveBall(ballSpeed,direction: ballMoveDirection)
+			if (ballIsInMiddleOfMoving)
+			{
+				moveBall(ballSpeed,direction: ballMoveDirection)
+			}
 		}
 	}
 }

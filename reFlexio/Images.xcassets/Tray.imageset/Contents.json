@@ -2,8 +2,8 @@
   "images" : [
     {
       "idiom" : "universal",
-      "scale" : "1x",
-      "filename" : "tray.png"
+      "filename" : "tray240x60.png",
+      "scale" : "1x"
     },
     {
       "idiom" : "universal",

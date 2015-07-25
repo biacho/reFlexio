@@ -21,22 +21,26 @@ class Ball: SKSpriteNode {
 		
 		var x: CGFloat = 0.0
 		var y: CGFloat = 0.0
+		var bodySize: CGFloat = 0.0
 		
 		if (UIDevice.currentDevice().userInterfaceIdiom == .Pad) // iPad Mini bez retiny 7.9"
 		{
 			x = 0.6
 			y = 0.6
+			bodySize = imageTexture.size().width / 3.7
 		}
 		else if (UIDevice.currentDevice().userInterfaceIdiom == .Phone) // 0.3 dla iPhone 6 4.7"
 		{
 			x = 0.4
 			y = 0.4
+			bodySize = imageTexture.size().width / 4.6
 		}
+		print("Ball - \(UIDevice.currentDevice().description)")
 		
 		let size: CGSize = CGSizeMake(imageTexture.size().width * x, imageTexture.size().height * y)
 		super.init(texture: imageTexture, color: UIColor(), size: size)
+		let body: SKPhysicsBody = SKPhysicsBody(circleOfRadius: bodySize)
 		
-		let body: SKPhysicsBody = SKPhysicsBody(circleOfRadius: imageTexture.size().width / 4.6)
 		body.dynamic = true
 		body.categoryBitMask = Obstacles.ball.rawValue
 		//body.contactTestBitMask = Obstacles.tray.rawValue
