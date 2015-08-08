@@ -24,17 +24,16 @@ class Tray: SKSpriteNode {
 		
 		if (UIDevice.currentDevice().userInterfaceIdiom == .Pad)
 		{
-			//print("iPad")
+			print("iPad")
 			x = 50
 			y = 200
 		}
 		else if (UIDevice.currentDevice().userInterfaceIdiom == .Phone)
 		{
-			//print("iPhone")
+			print("iPhone")
 			x = 30
 			y = 100
 		}
-		print("Tray - \(UIDevice.currentDevice().description)")
 		
 		let size: CGSize = CGSizeMake(y, x)
 		super.init(texture: imageTexture, color: UIColor(), size: size)

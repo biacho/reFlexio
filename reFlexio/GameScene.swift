@@ -25,7 +25,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var ball:Ball!
 	var tray:Tray!
 	var wall:Walls!
+	
 	var brick:Brick!
+	var bricksArray: [String] = []
 	
 	let gameOverLabel = SKLabelNode(fontNamed:"Chalkduster")
 	var restartLabel = SKLabelNode(fontNamed:"Chalkduster")
@@ -54,6 +56,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var ballMoveDirection = String()
 	
 	// Collision in SpriteKit
+	var inContactWithOneBrick: Bool = false
+
 	func didBeginContact(contact: SKPhysicsContact) {
 		
 		print("Contact!")
@@ -82,8 +86,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		else if (secondBody.categoryBitMask == 7)
 		{
-			hitInBrick()
-			secondBody.node?.removeFromParent()
+			if (!inContactWithOneBrick)
+			{
+				inContactWithOneBrick = true
+				hitInBrick()
+				secondBody.node?.removeFromParent()
+			}
 		}
 	}
 	
@@ -91,13 +99,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func didMoveToView(view: SKView) {
 		
+		
 		/* Background && Top Line*/
 		let bgImage = SKSpriteNode(imageNamed: "Background")
 		bgImage.position = CGPointMake(CGRectGetWidth(self.frame)/2, CGRectGetHeight(self.frame)/2)
+		bgImage.name = "Background"
 		
 		let bgLine = SKSpriteNode(color: UIColor.whiteColor(), size: CGSizeMake(self.frame.size.width, 1))
 		bgLine.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 60)
-
+		bgLine.name = "TopLine"
+		
 		addChild(bgImage)
 		addChild(bgLine)
 		
@@ -134,12 +145,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		pointsNumberFormatter.minimumIntegerDigits = 5
 		pointsNumber = 0
 		pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
+		pointsLabel.name = "PointsLabel"
 		pointsLabel.fontSize = 38
 		pointsLabel.position = CGPointMake(CGRectGetMaxX(self.frame) - (pointsLabel.frame.size.width + 20), CGRectGetMaxY(self.frame) - 45);
 		pointsLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
 		self.addChild(pointsLabel)
 		
 		/* Life Label */
+		lifesLabel.name = "LifeLabel"
 		lifesLabel.text = "🏈🏈🏈"
 		lifesLabel.fontSize = 38
 		lifesLabel.position = CGPointMake(CGRectGetMidX(self.frame) - lifesLabel.frame.size.width/2, CGRectGetMaxY(self.frame) - 45)
@@ -149,15 +162,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		/* Play Time Label */
 		timerNumber = 0
 		playingTime.text = "Time: \(timerNumber)"
+		pointsLabel.name = "PlayTimeLabel"
 		playingTime.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
 		playingTime.fontSize = 38
 		playingTime.position = CGPointMake(CGRectGetMinX(self.frame) + 15, CGRectGetMaxY(self.frame) - 45);
 		self.addChild(playingTime)
 		
 		/* Setup your scene here */
-		//view.showsPhysics = true
-		//view.showsFPS = true
-		//view.showsNodeCount = true
+		//self.view!.showsPhysics = true
+		self.view!.showsFPS = true
+		self.view!.showsNodeCount = true
 		
 		traySetUp()
 		ballSetUp()
@@ -234,7 +248,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		else
 		{
-			var directionsArray = ["Up", "Up_Right", "Up_Left"]
+			var directionsArray = ["Up_Right", "Up_Left"] // , "Up"]
 			let i = Int(arc4random_uniform(UInt32(directionsArray.count)))
 			let randomDirection = String(directionsArray[i])
 			moveBall(ballSpeed, direction: randomDirection)
@@ -293,21 +307,65 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	func hitInBrick()
 	{
 		// TODO: Dodać odbicie z boku i od góry
+		
+		// Odbicie z gołu
 		if (ballMoveDirection == "Up_Left")
 		{
 			moveBall(ballSpeed, direction: "Down_Left")
+			inContactWithOneBrick = false
 		}
 		else if (ballMoveDirection == "Up_Right")
 		{
 			moveBall(ballSpeed, direction: "Down_Right")
+			inContactWithOneBrick = false
+		}
+		// Odbicie z Góry
+		else if (ballMoveDirection == "Down_Left")
+		{
+			moveBall(ballSpeed, direction: "Up_Left")
+			inContactWithOneBrick = false
+		}
+		else if (ballMoveDirection == "Down_Right")
+		{
+			moveBall(ballSpeed, direction: "Up_Right")
+			inContactWithOneBrick = false
+		}
+		// Odbicie z lewej
+		else if (ballMoveDirection == "Up_Right")
+		{
+			moveBall(ballSpeed, direction: "Up_Left")
+			inContactWithOneBrick = false
+		}
+		else if (ballMoveDirection == "Down_Right")
+		{
+			moveBall(ballSpeed, direction: "Down_Left")
+			inContactWithOneBrick = false
+		}
+		// Odbicie z prawej
+		else if (ballMoveDirection == "Up_Left")
+		{
+			moveBall(ballSpeed, direction: "Up_Right")
+			inContactWithOneBrick = false
+		}
+		else if (ballMoveDirection == "Down_Left")
+		{
+			moveBall(ballSpeed, direction: "Down_Right")
+			inContactWithOneBrick = false
 		}
 		else
 		{
 			moveBall(ballSpeed, direction: "Down")
+			inContactWithOneBrick = false
 		}
 		
 		pointsNumber += 50
 		pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
+		
+		if (bricksArray.count == 0)
+		{
+			// TODO:  Koniec gry! Napisa, usuwanie piłki i tacki. Zapis punktów do pamięci(pliku/chmura?), wyświetlenie tablicy z najlepszymi.
+			print("You Win!!")
+		}
 	}
 	
 	func hitInBottom()
@@ -363,19 +421,47 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	// BRICK
 	func brickSetUp()
 	{
-		let location = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 150)
-		let bricksNumber: NSNumber = 1
 		
-		let theDick: [String: String] =
-		[
-			"ImageName": "Brick_Green",
-			"Location": NSStringFromCGPoint(location),
-			"PlaceMultiplesOnX": bricksNumber.stringValue
-		]
+		// Stowrzyć tablice z nazwami danej kostki, i dodawać do niej nazwe nowo stworzonej kostki przy jej tworzeniu, a potem przy niszczeniu usuwać. TAk będzie można policzyć ile kostek jest na planszy i czuwać nad tym czy są jeszcze jakieś czy nie. Tablica pusta znaczy, że zdjeliśmy wszystkie kostki i można kończyć grę.
+		let brickSize = SKTexture(imageNamed: "Brick_Green_v2)").size().height
+		print("\(brickSize)")
 		
-		brick = Brick(theDict: theDick)
-		//brick.name! = "Zief :)"
-		addChild(brick)
+		let bricksNumber: NSInteger = 5
+		let brickRowNumber: NSInteger = 5
+		let c = bricksNumber
+		let r = brickRowNumber
+ 		let spaceBetwenBricks: CGSize = CGSizeMake(20, -108)
+		
+		let baseOrigin: CGPoint = CGPointMake(brickSize + 14, CGRectGetMaxY(self.frame) - 300)
+
+		for (var row = 0; row < r; row++)
+		{
+			let strTemp: String = "brick\(row)"
+			
+			var brickPosition: CGPoint = CGPointMake(baseOrigin.x, CGFloat(row) * (brickSize/3) + baseOrigin.y)
+			
+			for (var col = 0; col < c; col++)
+			{
+				brick = Brick(imageNamed: "Brick_Green_v2")
+				
+				let str = "\(strTemp)\(col)"
+				self.brick.name = str
+				
+				self.brick.position.x = brickPosition.x
+				self.brick.position.y = brickPosition.y
+				
+				print("Create brick nr. \(col)")
+				print("Created brick description: \(self.brick.description)")
+				
+				addChild(brick)
+				
+				bricksArray.append(str)
+				print("\(bricksArray.count)")
+				brickPosition.x += self.brick.size.width + spaceBetwenBricks.width // brickPosition.x - self.frame.width/4
+			}
+		}
+		
+		print("brick size: \(self.brick.size)")
 	}
 	// ---
 	
