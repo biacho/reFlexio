@@ -46,16 +46,18 @@ class Ball: SKSpriteNode {
 		super.init(texture: imageTexture, color: UIColor(), size: size)
 		let body: SKPhysicsBody = SKPhysicsBody(circleOfRadius: bodySize)
 		
-		body.dynamic = true
-		body.categoryBitMask = Obstacles.ball.rawValue
+		//Images.body.dynamic = true
+		//body.categoryBitMask = Obstacles.ball.rawValue
 		//body.contactTestBitMask = Obstacles.tray.rawValue
-		body.collisionBitMask = Obstacles.nothing.rawValue
-		body.usesPreciseCollisionDetection = false
+		//body.collisionBitMask = Obstacles.nothing.rawValue
+		//body.usesPreciseCollisionDetection = false
 		
 		self.physicsBody = body
 	}
 	
-	func update() {		
+	func update() {
+		print("Ball Update :)")
+		
 		// this instance will update when told to by the GameScene class
 	}
 }

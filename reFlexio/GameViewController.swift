@@ -12,7 +12,8 @@ import SpriteKit
 extension SKNode {
     class func unarchiveFromFile(file : String) -> SKNode? {
         if let path = NSBundle.mainBundle().pathForResource(file, ofType: "sks") {
-            let sceneData = try! NSData(contentsOfFile: path, options: .DataReadingMappedIfSafe)
+			//let sceneData = NSData(contentsOfFile: path, options: .DataReadingMappedIfSafe, error: NSErrorPointer()) // Swift 1.2
+            let sceneData = try! NSData(contentsOfFile: path, options: .DataReadingMappedIfSafe) // Swift 2.0
             let archiver = NSKeyedUnarchiver(forReadingWithData: sceneData)
             
             archiver.setClass(self.classForKeyedUnarchiver(), forClassName: "SKScene")
@@ -53,13 +54,19 @@ class GameViewController: UIViewController {
         return false
     }
 
-    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
-        if UIDevice.currentDevice().userInterfaceIdiom == .Phone {
-            return UIInterfaceOrientationMask.AllButUpsideDown
-        } else {
-            return UIInterfaceOrientationMask.All
-        }
-    }
+	/* Swift 1.2
+	override func supportedInterfaceOrientations() -> Int {
+		let orientation = Int(UIInterfaceOrientationMask.Portrait.rawValue | UIInterfaceOrientationMask.PortraitUpsideDown.rawValue)
+		return Int(UIInterfaceOrientationMask.All.rawValue)
+	}
+	*/
+	
+	// Swift 2.0
+	override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
+		let orientation: UIInterfaceOrientationMask = [UIInterfaceOrientationMask.Portrait, UIInterfaceOrientationMask.PortraitUpsideDown]
+		return orientation
+	}
+	
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

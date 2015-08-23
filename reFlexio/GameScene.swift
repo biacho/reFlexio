@@ -25,18 +25,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var ball:Ball!
 	var tray:Tray!
 	var wall:Walls!
-	
 	var brick:Brick!
+	
 	var bricksArray: [String] = []
 	
 	let gameOverLabel = SKLabelNode(fontNamed:"Chalkduster")
 	var restartLabel = SKLabelNode(fontNamed:"Chalkduster")
-
+	let winnerLabel = SKLabelNode(fontNamed:"Chalkduster")
 	var pointsLabel = SKLabelNode(fontNamed:"Chalkduster")
+	var lifesLabel = SKLabelNode()
+	
 	var pointsNumberFormatter = NSNumberFormatter()
 	var pointsNumber = Int()
 	
-	var lifesLabel = SKLabelNode()
 	
 	var playingTime = SKLabelNode(fontNamed:"Chalkduster")
 	var timerNumber = Int()
@@ -50,13 +51,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var ballIsInMiddleOfMoving: Bool = false
 	var stillAChance: Bool = false
 
-
 	/* Set Up Move */
-	var ballSpeed: CGFloat = 5.0
+	var ballSpeed: CGFloat = 15.0
 	var ballMoveDirection = String()
 	
 	// Collision in SpriteKit
 	var inContactWithOneBrick: Bool = false
+	var contactWithBrickName = SKPhysicsBody()
 
 	func didBeginContact(contact: SKPhysicsContact) {
 		
@@ -89,30 +90,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if (!inContactWithOneBrick)
 			{
 				inContactWithOneBrick = true
+				contactWithBrickName = secondBody
 				hitInBrick()
-				secondBody.node?.removeFromParent()
+				//secondBody.node?.removeFromParent()
 			}
 		}
 	}
 	
 	
 	
-	override func didMoveToView(view: SKView) {
-		
-		
+	override func didMoveToView(view: SKView)
+	{
 		/* Background && Top Line*/
-		let bgImage = SKSpriteNode(imageNamed: "Background")
-		bgImage.position = CGPointMake(CGRectGetWidth(self.frame)/2, CGRectGetHeight(self.frame)/2)
-		bgImage.name = "Background"
-		
 		let bgLine = SKSpriteNode(color: UIColor.whiteColor(), size: CGSizeMake(self.frame.size.width, 1))
 		bgLine.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 60)
 		bgLine.name = "TopLine"
-		
-		addChild(bgImage)
 		addChild(bgLine)
 		
-		
+		let bgImage = SKSpriteNode(imageNamed: "Background")
+		bgImage.position = CGPointMake(CGRectGetWidth(self.frame)/2, CGRectGetHeight(self.frame)/2)
+		bgImage.name = "Background"
+		bgImage.zPosition = -1.0
+		addChild(bgImage)
 		
 		/* Setup veriables */
 		let sizeWallTop: CGSize = CGSizeMake(self.size.width, 1)
@@ -177,6 +176,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		ballSetUp()
 		brickSetUp()
 		
+		
+
 		physicsWorld.gravity = CGVectorMake(0, 0)
 		physicsWorld.contactDelegate = self
 		
@@ -361,16 +362,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		pointsNumber += 50
 		pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
 		
-		if (bricksArray.count == 0)
+		contactWithBrickName.node?.removeFromParent()
+		
+		if bricksArray.contains((contactWithBrickName.node?.name)!)
 		{
-			// TODO:  Koniec gry! Napisa, usuwanie piłki i tacki. Zapis punktów do pamięci(pliku/chmura?), wyświetlenie tablicy z najlepszymi.
-			print("You Win!!")
+			bricksArray.removeAtIndex(bricksArray.indexOf((contactWithBrickName.node?.name)!)!)
+			
+			if (bricksArray.count == 0)
+			{
+				// TODO:  Koniec gry! Napis, usuwanie piłki i tacki. Zapis punktów do pamięci(pliku/chmura?), wyświetlenie tablicy z najlepszymi.
+				print("You Win!!")
+				winGame()
+			}
 		}
+		
+		
+		print("contact with brick: \(contactWithBrickName.node?.name)")
 	}
 	
 	func hitInBottom()
 	{
-		if (lifesLabel.text?.characters.count >= 2)
+		//var strLenght = distance(lifesLabel.text!.startIndex, lifesLabel.text!.endIndex) // Swift 1.2
+		
+		hitInTray()
+		
+		/*
+		if (lifesLabel.text!.characters.count >= 2)
 		{
 			var str = lifesLabel.text!
 			str.removeAtIndex(str.endIndex.predecessor())
@@ -414,6 +431,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			stillAChance = false
 			ballIsInMiddleOfMoving = false
 		}
+		*/
 	}
 	
 	// ---
@@ -423,11 +441,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	{
 		
 		// Stowrzyć tablice z nazwami danej kostki, i dodawać do niej nazwe nowo stworzonej kostki przy jej tworzeniu, a potem przy niszczeniu usuwać. TAk będzie można policzyć ile kostek jest na planszy i czuwać nad tym czy są jeszcze jakieś czy nie. Tablica pusta znaczy, że zdjeliśmy wszystkie kostki i można kończyć grę.
-		let brickSize = SKTexture(imageNamed: "Brick_Green_v2)").size().height
+		let brickSize = SKTexture(imageNamed: "Brick_Green)").size().height
 		print("\(brickSize)")
 		
-		let bricksNumber: NSInteger = 5
-		let brickRowNumber: NSInteger = 5
+		let bricksNumber: NSInteger = 3
+		let brickRowNumber: NSInteger = 1
 		let c = bricksNumber
 		let r = brickRowNumber
  		let spaceBetwenBricks: CGSize = CGSizeMake(20, -108)
@@ -442,26 +460,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			for (var col = 0; col < c; col++)
 			{
-				brick = Brick(imageNamed: "Brick_Green_v2")
+				brick = Brick(imageNamed: "Brick_Green")
 				
 				let str = "\(strTemp)\(col)"
 				self.brick.name = str
 				
+				
 				self.brick.position.x = brickPosition.x
 				self.brick.position.y = brickPosition.y
-				
-				print("Create brick nr. \(col)")
-				print("Created brick description: \(self.brick.description)")
 				
 				addChild(brick)
 				
 				bricksArray.append(str)
-				print("\(bricksArray.count)")
 				brickPosition.x += self.brick.size.width + spaceBetwenBricks.width // brickPosition.x - self.frame.width/4
 			}
 		}
-		
-		print("brick size: \(self.brick.size)")
 	}
 	// ---
 	
@@ -471,7 +484,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		startTrayPosition = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMinY(self.frame) + 70)
 		tray = Tray(imageNamed: "Tray")
 		tray.position = startTrayPosition
-		addChild(tray)
+		// addChild(tray)
 	}
 	
 	func moveTray(gesture: UIPanGestureRecognizer)
@@ -509,7 +522,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	// ---
 	
-	override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+	func winGame()
+	{
+		print("WINNER!")
+		gameIsOver = true
+		
+		winnerLabel.childNodeWithName("WINNER!!")
+		winnerLabel.text = "WINNER !!";
+		winnerLabel.fontSize = 48;
+		winnerLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2);
+		addChild(winnerLabel)
+		
+		pointsNumber = 0
+		timer.invalidate()
+		timerNumber = 0
+		playingTime.text = "Time: 0"
+		playingTime.removeFromParent()
+		pointsLabel.removeFromParent()
+		lifesLabel.removeFromParent()
+		
+		ball.removeAllActions()
+		ball.removeFromParent()
+		tray.removeAllActions()
+		tray.removeFromParent()
+		
+		stillAChance = false
+		ballIsInMiddleOfMoving = false
+	}
+	
+	//	override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) { // Swift 1.2
+		override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) { // Swift 2.0
+	
 		/* Called when a touch begins */
 		if (gameIsOver)
 		{
@@ -527,6 +570,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			self.addChild(lifesLabel)
 			
 			gameOverLabel.removeFromParent()
+			winnerLabel.removeFromParent()
+			
 			gameIsOver = false
 			stillAChance = false
 			ballIsInMiddleOfMoving = false
@@ -556,6 +601,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 		}
 	}
+	
 	
 	override func update(currentTime: CFTimeInterval) {
 		/* Called before each frame is rendered */

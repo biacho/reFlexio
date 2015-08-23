@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>9D6DFE85-854B-48B2-9BDC-98F1A7D0572E</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>reFlexio</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>0074EC3CDDE8112F155A8C2DD96E003E3E3BB7A9</key>
 		<string>github.com:biacho/reFlexio</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>reFlexio.xcodeproj/project.xcworkspace</string>
+	<string>reFlexio.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>0074EC3CDDE8112F155A8C2DD96E003E3E3BB7A9</key>

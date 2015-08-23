@@ -3,6 +3,10 @@ reFlexio the Game!
 Prosta gra, której celem jest wyczyszczenie planszy z kostek. Używamy do tego
 piłeczki. Zbieramy punkty oraz skarby wypadające z kostek.
 
+Update 1.0.2 (23.08.2015) :
+  - Liczenie kostek, zbicie wszystkich kończy grę!
+  - Dodane nowe grafiki (naprawione?) 
+  - Tło jest w końcu tłem, czyli jest na najniższej warstwie(?)
 
 Update 1.0.1 (08.08.2015) :
   - Zmieniona budowa Brick.swift i implementacja
@@ -18,7 +22,7 @@ Update 1.0 (25.07.2015) :
 
 
 ToDo:
-  - [In Progress... ~60%] Zbicie wszystkich kostek kończy grę.
+  - [In Progress... 100%] Zbicie wszystkich kostek kończy grę.
   - [In Progress... ~40%] Dodać odbicie piłki od kostki z boków i od góry
   - Odgłosy przy odbiciu
-  - Optymalizacja pod różne urządzenia (iPad a iPhone). Różne rozdzielczości.
+  - [In Progress... ~30%] Optymalizacja pod różne urządzenia (iPad a iPhone). Różne rozdzielczości.
