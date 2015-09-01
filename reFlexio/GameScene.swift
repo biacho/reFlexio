@@ -34,6 +34,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	let winnerLabel = SKLabelNode(fontNamed:"Chalkduster")
 	var pointsLabel = SKLabelNode(fontNamed:"Chalkduster")
 	var lifesLabel = SKLabelNode()
+	var bgImage = SKSpriteNode()
+	var bgLine = SKSpriteNode()
 	
 	var pointsNumberFormatter = NSNumberFormatter()
 	var pointsNumber = Int()
@@ -54,6 +56,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	/* Set Up Move */
 	var ballSpeed: CGFloat = 15.0
 	var ballMoveDirection = String()
+	//var lastObjectIsBrick: Bool = false
+	var ballMoveFromDirection = String()
+	
 	
 	// Collision in SpriteKit
 	var inContactWithOneBrick: Bool = false
@@ -102,12 +107,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	override func didMoveToView(view: SKView)
 	{
 		/* Background && Top Line*/
-		let bgLine = SKSpriteNode(color: UIColor.whiteColor(), size: CGSizeMake(self.frame.size.width, 1))
+		bgLine = SKSpriteNode(color: UIColor.whiteColor(), size: CGSizeMake(self.frame.size.width, 1))
 		bgLine.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 60)
 		bgLine.name = "TopLine"
 		addChild(bgLine)
 		
-		let bgImage = SKSpriteNode(imageNamed: "Background")
+		bgImage = SKSpriteNode(imageNamed: "Background")
 		bgImage.position = CGPointMake(CGRectGetWidth(self.frame)/2, CGRectGetHeight(self.frame)/2)
 		bgImage.name = "Background"
 		bgImage.zPosition = -1.0
@@ -141,20 +146,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		addChild(wall)
 		
 		/* Point's Label */
-		pointsNumberFormatter.minimumIntegerDigits = 5
+		pointsNumberFormatter.minimumIntegerDigits = 6
 		pointsNumber = 0
 		pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
 		pointsLabel.name = "PointsLabel"
-		pointsLabel.fontSize = 38
-		pointsLabel.position = CGPointMake(CGRectGetMaxX(self.frame) - (pointsLabel.frame.size.width + 20), CGRectGetMaxY(self.frame) - 45);
+//		pointsLabel.fontSize = 38 // iPad Mini 1
+		pointsLabel.fontSize = 22 // iPhone 5
+		pointsLabel.position = CGPointMake(CGRectGetMaxX(self.frame) - (pointsLabel.frame.size.width + 15), CGRectGetMaxY(self.frame) - 40);
 		pointsLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
 		self.addChild(pointsLabel)
 		
 		/* Life Label */
 		lifesLabel.name = "LifeLabel"
 		lifesLabel.text = "🏈🏈🏈"
-		lifesLabel.fontSize = 38
-		lifesLabel.position = CGPointMake(CGRectGetMidX(self.frame) - lifesLabel.frame.size.width/2, CGRectGetMaxY(self.frame) - 45)
+//		lifesLabel.fontSize = 38 // iPad Mini 1
+		lifesLabel.fontSize = 18 // iPhone 5
+		lifesLabel.position = CGPointMake(CGRectGetMidX(self.frame) - lifesLabel.frame.size.width/2, CGRectGetMaxY(self.frame) - 40)
 		lifesLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
 		self.addChild(lifesLabel)
 		
@@ -163,8 +170,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		playingTime.text = "Time: \(timerNumber)"
 		pointsLabel.name = "PlayTimeLabel"
 		playingTime.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
-		playingTime.fontSize = 38
-		playingTime.position = CGPointMake(CGRectGetMinX(self.frame) + 15, CGRectGetMaxY(self.frame) - 45);
+//		playingTime.fontSize = 38 // iPad Mini 1
+		playingTime.fontSize = 22 // iPhone 5
+		playingTime.position = CGPointMake(CGRectGetMinX(self.frame) + 10, CGRectGetMaxY(self.frame) - 40);
 		self.addChild(playingTime)
 		
 		/* Setup your scene here */
@@ -175,6 +183,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		traySetUp()
 		ballSetUp()
 		brickSetUp()
+		//winGame()
 		
 		
 
@@ -242,10 +251,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if (ballMoveDirection == "Down_Left")
 		{
 			moveBall(ballSpeed, direction: "Up_Left")
+			ballMoveFromDirection = "Bottom_Right"
 		}
 		else if  (ballMoveDirection == "Down_Right")
 		{
 			moveBall(ballSpeed, direction: "Up_Right")
+			ballMoveFromDirection = "Bottom_Left"
 		}
 		else
 		{
@@ -265,10 +276,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if (ballMoveDirection == "Up_Left")
 		{
 			moveBall(ballSpeed, direction: "Down_Left")
+			ballMoveFromDirection = "Top_Right"
 		}
 		else if (ballMoveDirection == "Up_Right")
 		{
 			moveBall(ballSpeed, direction: "Down_Right")
+			ballMoveFromDirection = "Top_Left"
 		}
 		else
 		{
@@ -284,10 +297,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if (ballMoveDirection == "Down_Left")
 		{
 			moveBall(ballSpeed, direction: "Down_Right")
+			ballMoveFromDirection = "Up_Left"
 		}
 		else
 		{
 			moveBall(ballSpeed, direction: "Up_Right")
+			ballMoveFromDirection = "Down_Left"
 		}
 	}
 	
@@ -298,10 +313,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if (ballMoveDirection == "Down_Right")
 		{
 			moveBall(ballSpeed, direction: "Down_Left")
+			ballMoveFromDirection = "Up_Right"
 		}
 		else
 		{
 			moveBall(ballSpeed, direction: "Up_Left")
+			ballMoveFromDirection = "Down_Right"
 		}
 	}
 	
@@ -309,56 +326,70 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	{
 		// TODO: Dodać odbicie z boku i od góry
 		
-		// Odbicie z gołu
-		if (ballMoveDirection == "Up_Left")
-		{
-			moveBall(ballSpeed, direction: "Down_Left")
-			inContactWithOneBrick = false
-		}
-		else if (ballMoveDirection == "Up_Right")
-		{
-			moveBall(ballSpeed, direction: "Down_Right")
-			inContactWithOneBrick = false
-		}
-		// Odbicie z Góry
-		else if (ballMoveDirection == "Down_Left")
-		{
-			moveBall(ballSpeed, direction: "Up_Left")
-			inContactWithOneBrick = false
-		}
-		else if (ballMoveDirection == "Down_Right")
-		{
-			moveBall(ballSpeed, direction: "Up_Right")
-			inContactWithOneBrick = false
-		}
-		// Odbicie z lewej
-		else if (ballMoveDirection == "Up_Right")
-		{
-			moveBall(ballSpeed, direction: "Up_Left")
-			inContactWithOneBrick = false
-		}
-		else if (ballMoveDirection == "Down_Right")
-		{
-			moveBall(ballSpeed, direction: "Down_Left")
-			inContactWithOneBrick = false
-		}
-		// Odbicie z prawej
-		else if (ballMoveDirection == "Up_Left")
-		{
-			moveBall(ballSpeed, direction: "Up_Right")
-			inContactWithOneBrick = false
-		}
-		else if (ballMoveDirection == "Down_Left")
-		{
-			moveBall(ballSpeed, direction: "Down_Right")
-			inContactWithOneBrick = false
-		}
-		else
-		{
-			moveBall(ballSpeed, direction: "Down")
-			inContactWithOneBrick = false
-		}
+		print(ballMoveFromDirection)
 		
+		if (ballMoveFromDirection == "Bottom_Right" || ballMoveFromDirection == "Bottom_Left")
+		{
+			// Odbicie z dołu
+			if (ballMoveDirection == "Up_Left")
+			{
+				moveBall(ballSpeed, direction: "Down_Left")
+				//ballMoveFromDirection =
+				inContactWithOneBrick = false
+			}
+			else if (ballMoveDirection == "Up_Right")
+			{
+				moveBall(ballSpeed, direction: "Down_Right")
+				inContactWithOneBrick = false
+			}
+		}
+		else if (ballMoveFromDirection == "Top_Right" || ballMoveFromDirection == "Top_Left")
+		{
+			// Odbicie z Góry
+			if (ballMoveDirection == "Down_Left")
+			{
+				moveBall(ballSpeed, direction: "Up_Left")
+				inContactWithOneBrick = false
+			}
+			else if (ballMoveDirection == "Down_Right")
+			{
+				moveBall(ballSpeed, direction: "Up_Right")
+				inContactWithOneBrick = false
+			}
+		}
+		else if (ballMoveFromDirection == "Up_Left" || ballMoveFromDirection == "Down_Left")
+		{
+			// Odbicie z lewej
+			if (ballMoveDirection == "Up_Right")
+			{
+				moveBall(ballSpeed, direction: "Up_Left")
+				inContactWithOneBrick = false
+			}
+			else if (ballMoveDirection == "Down_Right")
+			{
+				moveBall(ballSpeed, direction: "Down_Left")
+				inContactWithOneBrick = false
+			}
+		}
+		else if (ballMoveFromDirection == "Up_Right" || ballMoveFromDirection == "Down_Right")
+		{
+			// Odbicie z prawej
+			if (ballMoveDirection == "Up_Left")
+			{
+				moveBall(ballSpeed, direction: "Up_Right")
+				inContactWithOneBrick = false
+			}
+			else if (ballMoveDirection == "Down_Left")
+			{
+				moveBall(ballSpeed, direction: "Down_Right")
+				inContactWithOneBrick = false
+			}
+			else
+			{
+				moveBall(ballSpeed, direction: "Down")
+				inContactWithOneBrick = false
+			}
+		}
 		pointsNumber += 50
 		pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
 		
@@ -439,27 +470,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	// BRICK
 	func brickSetUp()
 	{
-		
-		// Stowrzyć tablice z nazwami danej kostki, i dodawać do niej nazwe nowo stworzonej kostki przy jej tworzeniu, a potem przy niszczeniu usuwać. TAk będzie można policzyć ile kostek jest na planszy i czuwać nad tym czy są jeszcze jakieś czy nie. Tablica pusta znaczy, że zdjeliśmy wszystkie kostki i można kończyć grę.
-		let brickSize = SKTexture(imageNamed: "Brick_Green)").size().height
-		print("\(brickSize)")
-		
-		let bricksNumber: NSInteger = 3
-		let brickRowNumber: NSInteger = 1
+		//let brickSize = SKTexture(imageNamed: "Brick_Green)").size
+		let brickSize = UIImage(named: "Brick_Green")?.size
+
+		let bricksNumber: NSInteger = 3 // 0 just for testing
+		let brickRowNumber: NSInteger = 3
+		print("brickRowNumber: \(brickRowNumber)")
 		let c = bricksNumber
 		let r = brickRowNumber
- 		let spaceBetwenBricks: CGSize = CGSizeMake(20, -108)
+ 		let spaceBetwenBricks: CGSize = CGSizeMake(15, -78)
+
 		
-		let baseOrigin: CGPoint = CGPointMake(brickSize + 14, CGRectGetMaxY(self.frame) - 300)
+		let baseOrigin: CGPoint = CGPointMake(CGRectGetMidX(self.frame) - 70 - spaceBetwenBricks.width,CGRectGetMaxY(self.frame) - 140)
+		
+		
 
 		for (var row = 0; row < r; row++)
 		{
 			let strTemp: String = "brick\(row)"
 			
-			var brickPosition: CGPoint = CGPointMake(baseOrigin.x, CGFloat(row) * (brickSize/3) + baseOrigin.y)
+			var brickPosition: CGPoint = CGPointMake(baseOrigin.x, CGFloat(row) * ((brickSize!.height)) + baseOrigin.y)
 			
 			for (var col = 0; col < c; col++)
 			{
+				
 				brick = Brick(imageNamed: "Brick_Green")
 				
 				let str = "\(strTemp)\(col)"
@@ -473,6 +507,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				bricksArray.append(str)
 				brickPosition.x += self.brick.size.width + spaceBetwenBricks.width // brickPosition.x - self.frame.width/4
+				
 			}
 		}
 	}
@@ -484,19 +519,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		startTrayPosition = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMinY(self.frame) + 70)
 		tray = Tray(imageNamed: "Tray")
 		tray.position = startTrayPosition
-		// addChild(tray)
+		addChild(tray)
 	}
 	
 	func moveTray(gesture: UIPanGestureRecognizer)
 	{
-		if (gesture.locationInView(self.view!).x <= tray.position.x + tray.size.width/2 && // <-- tacką można poruszać tylko jak palec jest nad nią
-			gesture.locationInView(self.view!).x >= tray.position.x - tray.size.width/2)
+		if (gesture.locationInView(self.view!).x <= tray.position.x + tray.size.width/1.3 && // <-- tacką można poruszać tylko jak palec jest nad nią
+			gesture.locationInView(self.view!).x >= tray.position.x - tray.size.width/1.3)
 		{
 			var translation: CGPoint! = gesture.velocityInView(self.view!)
-			translation.x = (translation.x * 0.055) / 2.8		// Przyspieszenie tacki (iPad Mini 1gen)
+			translation.x = (translation.x * 0.07) / 2.5		// Przyspieszenie tacki iPhone 5 (4")
+			//translation.x = (translation.x * 0.055) / 2.8		// Przyspieszenie tacki (iPad Mini 1gen)
 			//translation.x = (translation.x * 0.113) / 2.8		// Przyspieszenie tacki (iPhone 6 Symulatot)
 			
-			if (gesture.locationInView(self.view!).y >= self.frame.size.height - tray.size.height * 2) // <-- Ograniczenie pola poruszania tacką do dołu ekranu
+			if (gesture.locationInView(self.view!).y >= self.frame.size.height - tray.size.height * 5) // <-- Ograniczenie pola poruszania tacką do dołu ekranu
 			{
 				if (gesture.velocityInView(self.view!).x > 0)
 				{
@@ -528,11 +564,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		gameIsOver = true
 		
 		winnerLabel.childNodeWithName("WINNER!!")
-		winnerLabel.text = "WINNER !!";
-		winnerLabel.fontSize = 48;
-		winnerLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2);
+		winnerLabel.text = "WINNER !!"
+		winnerLabel.fontSize = 56
+		winnerLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/1.5);
 		addChild(winnerLabel)
 		
+		
+		let playerName = SKLabelNode(fontNamed: "Chalkduster")
+		playerName.text = "FTW :" // Create Label for player to craet name
+		playerName.position = CGPoint(x: winnerLabel.position.x - winnerLabel.position.x/4, y: winnerLabel.position.y - winnerLabel.position.y/4)
+		playerName.fontSize = 36
+		addChild(playerName)
+		
+		let pointListLabel = SKLabelNode(fontNamed: "Chalkduster")
+		pointListLabel.text = "\(pointsLabel.text!)"
+		pointListLabel.fontSize = 36
+		pointListLabel.position = CGPoint(x: winnerLabel.position.x + winnerLabel.position.x/5 , y: winnerLabel.position.y - winnerLabel.position.y/4)
+		addChild(pointListLabel)
+		
+		
+		
+		// Clear display and labels
 		pointsNumber = 0
 		timer.invalidate()
 		timerNumber = 0
@@ -540,6 +592,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		playingTime.removeFromParent()
 		pointsLabel.removeFromParent()
 		lifesLabel.removeFromParent()
+		bgLine.removeFromParent()
 		
 		ball.removeAllActions()
 		ball.removeFromParent()
@@ -571,7 +624,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			gameOverLabel.removeFromParent()
 			winnerLabel.removeFromParent()
-			
+		
 			gameIsOver = false
 			stillAChance = false
 			ballIsInMiddleOfMoving = false

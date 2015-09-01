@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>POL</key>
+	<dict>
+		<key>language</key>
+		<string>Język</string>
+		<key>options</key>
+		<string>Opcje</string>
+		<key>sound</key>
+		<string>Dźwięki</string>
+		<key>music</key>
+		<string>Muzyka</string>
+		<key>done</key>
+		<string>Gotowe</string>
+		<key>play</key>
+		<string>Graj</string>
+		<key>scores</key>
+		<string>Punktacja</string>
+		<key>credits</key>
+		<string>Info</string>
+		<key>back</key>
+		<string>Powrót</string>
+	</dict>
+	<key>ENG</key>
+	<dict>
+		<key>language</key>
+		<string>Language</string>
+		<key>options</key>
+		<string>Options</string>
+		<key>sound</key>
+		<string>Sound</string>
+		<key>music</key>
+		<string>Music</string>
+		<key>done</key>
+		<string>Done</string>
+		<key>play</key>
+		<string>Play</string>
+		<key>scores</key>
+		<string>Scores</string>
+		<key>credits</key>
+		<string>Credits</string>
+		<key>back</key>
+		<string>Back</string>
+	</dict>
+</dict>
+</plist>

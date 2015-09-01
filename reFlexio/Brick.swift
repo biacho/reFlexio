@@ -18,8 +18,25 @@ class Brick: SKSpriteNode {
 
 	init(imageNamed: String)
 	{
+		
 		let imageTexture = SKTexture(imageNamed: imageNamed)
-		let size: CGSize = CGSizeMake(imageTexture.size().width, imageTexture.size().height)
+		var x: CGFloat = 0.0
+		var y: CGFloat = 0.0
+		
+		if (UIDevice.currentDevice().userInterfaceIdiom == .Pad)
+		{
+			x = 50
+			y = 200
+		}
+		else if (UIDevice.currentDevice().userInterfaceIdiom == .Phone)
+		{
+			x = 20
+			y = 70
+		}
+		
+		let size: CGSize = CGSizeMake(y, x)
+		
+		//let size: CGSize = CGSizeMake(imageTexture.size().width, imageTexture.size().height)
 		
 		super.init(texture: imageTexture, color: UIColor(), size: size)
 		

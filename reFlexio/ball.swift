@@ -28,14 +28,12 @@ class Ball: SKSpriteNode {
 		
 		if (UIDevice.currentDevice().userInterfaceIdiom == .Pad) // iPad Mini bez retiny 7.9"
 		{
-			print("iPad")
 			x = 0.6
 			y = 0.6
 			bodySize = imageTexture.size().width / 3.7
 		}
 		else if (UIDevice.currentDevice().userInterfaceIdiom == .Phone) // 0.3 dla iPhone 6 4.7"
 		{
-			print("iPhone")
 			x = 0.4
 			y = 0.4
 			bodySize = imageTexture.size().width / 4.6

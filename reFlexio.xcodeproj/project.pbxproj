@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6D0EF1511B8FC8F20034057F /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0EF1501B8FC8F20034057F /* MenuViewController.swift */; };
+		6D4172361B947B53005D2F16 /* OptionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4172351B947B53005D2F16 /* OptionViewController.swift */; };
+		6D4172381B950E63005D2F16 /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4172371B950E63005D2F16 /* AboutViewController.swift */; };
+		6D5B05FF1B9522F500DB483F /* Language.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6D5B05FE1B9522F500DB483F /* Language.plist */; };
 		6D7479221B44ACD800764DBD /* Ball.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D7479211B44ACD800764DBD /* Ball.swift */; };
 		6D7479261B44CBA900764DBD /* Tray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D7479251B44CBA900764DBD /* Tray.swift */; };
 		6D7479281B469AA200764DBD /* Brick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D7479271B469AA200764DBD /* Brick.swift */; };
@@ -31,6 +35,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6D0EF1501B8FC8F20034057F /* MenuViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MenuViewController.swift; path = ../MenuViewController.swift; sourceTree = "<group>"; };
+		6D4172351B947B53005D2F16 /* OptionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OptionViewController.swift; path = ../OptionViewController.swift; sourceTree = "<group>"; };
+		6D4172371B950E63005D2F16 /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
+		6D5B05FE1B9522F500DB483F /* Language.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Language.plist; sourceTree = "<group>"; };
 		6D7479211B44ACD800764DBD /* Ball.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ball.swift; sourceTree = "<group>"; };
 		6D7479251B44CBA900764DBD /* Tray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tray.swift; sourceTree = "<group>"; };
 		6D7479271B469AA200764DBD /* Brick.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Brick.swift; sourceTree = "<group>"; };
@@ -66,6 +74,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6D4172391B950E73005D2F16 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6D9774AB1B28FCE4004DEE7B /* GameViewController.swift */,
+				6D0EF1501B8FC8F20034057F /* MenuViewController.swift */,
+				6D4172351B947B53005D2F16 /* OptionViewController.swift */,
+				6D4172371B950E63005D2F16 /* AboutViewController.swift */,
+			);
+			name = ViewController;
+			sourceTree = "<group>";
+		};
+		6D41723A1B950E9A005D2F16 /* Game */ = {
+			isa = PBXGroup;
+			children = (
+				6D9774A91B28FCE4004DEE7B /* GameScene.swift */,
+			);
+			name = Game;
+			sourceTree = "<group>";
+		};
 		6D7479291B469B4C00764DBD /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -99,9 +126,8 @@
 			isa = PBXGroup;
 			children = (
 				6D7479291B469B4C00764DBD /* Model */,
-				6D9774A51B28FCE4004DEE7B /* AppDelegate.swift */,
-				6D9774A91B28FCE4004DEE7B /* GameScene.swift */,
-				6D9774AB1B28FCE4004DEE7B /* GameViewController.swift */,
+				6D41723A1B950E9A005D2F16 /* Game */,
+				6D4172391B950E73005D2F16 /* ViewController */,
 				6D9774AD1B28FCE4004DEE7B /* Main.storyboard */,
 				6D9774B01B28FCE4004DEE7B /* Images.xcassets */,
 				6D9774B21B28FCE4004DEE7B /* LaunchScreen.xib */,
@@ -113,7 +139,9 @@
 		6D9774A31B28FCE4004DEE7B /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				6D9774A51B28FCE4004DEE7B /* AppDelegate.swift */,
 				6D9774A41B28FCE4004DEE7B /* Info.plist */,
+				6D5B05FE1B9522F500DB483F /* Language.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -185,7 +213,7 @@
 				TargetAttributes = {
 					6D97749F1B28FCE4004DEE7B = {
 						CreatedOnToolsVersion = 6.3.2;
-						DevelopmentTeam = PCCTY4F6PV;
+						DevelopmentTeam = SX2A429E4N;
 					};
 					6D9774B81B28FCE5004DEE7B = {
 						CreatedOnToolsVersion = 6.3.2;
@@ -217,6 +245,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D5B05FF1B9522F500DB483F /* Language.plist in Resources */,
 				6D9774B41B28FCE4004DEE7B /* LaunchScreen.xib in Resources */,
 				6D9774B11B28FCE4004DEE7B /* Images.xcassets in Resources */,
 				6D9774AF1B28FCE4004DEE7B /* Main.storyboard in Resources */,
@@ -239,11 +268,14 @@
 			files = (
 				6D74792B1B46C9F400764DBD /* Walls.swift in Sources */,
 				6D7479221B44ACD800764DBD /* Ball.swift in Sources */,
+				6D4172361B947B53005D2F16 /* OptionViewController.swift in Sources */,
 				6D9774AA1B28FCE4004DEE7B /* GameScene.swift in Sources */,
 				6D7479261B44CBA900764DBD /* Tray.swift in Sources */,
 				6D9774AC1B28FCE4004DEE7B /* GameViewController.swift in Sources */,
 				6D9774A61B28FCE4004DEE7B /* AppDelegate.swift in Sources */,
 				6D7479281B469AA200764DBD /* Brick.swift in Sources */,
+				6D4172381B950E63005D2F16 /* AboutViewController.swift in Sources */,
+				6D0EF1511B8FC8F20034057F /* MenuViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
