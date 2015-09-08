@@ -54,7 +54,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var stillAChance: Bool = false
 
 	/* Set Up Move */
-	var ballSpeed: CGFloat = 15.0
+	var ballSpeed: CGFloat = 3.0
 	var ballMoveDirection = String()
 	//var lastObjectIsBrick: Bool = false
 	var ballMoveFromDirection = String()
@@ -63,10 +63,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	// Collision in SpriteKit
 	var inContactWithOneBrick: Bool = false
 	var contactWithBrickName = SKPhysicsBody()
+	var lastContactObject = String()
 
-	func didBeginContact(contact: SKPhysicsContact) {
-		
-		print("Contact!")
+	func didBeginContact(contact: SKPhysicsContact)
+	{
 		
 		let secondBody: SKPhysicsBody = contact.bodyA
 		
@@ -92,13 +92,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		else if (secondBody.categoryBitMask == 7)
 		{
-			if (!inContactWithOneBrick)
-			{
-				inContactWithOneBrick = true
-				contactWithBrickName = secondBody
-				hitInBrick()
-				//secondBody.node?.removeFromParent()
-			}
+			print("Kostka")
+			contactWithBrickName = secondBody
+			hitInBrick(contact.contactPoint)
 		}
 	}
 	
@@ -246,21 +242,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func hitInTray()
 	{
-		print("hitInTray")
+		//print("hitInTray")
+		lastContactObject = "tray"
 		
 		if (ballMoveDirection == "Down_Left")
 		{
 			moveBall(ballSpeed, direction: "Up_Left")
-			ballMoveFromDirection = "Bottom_Right"
+			ballMoveFromDirection = "Down_Right"
 		}
 		else if  (ballMoveDirection == "Down_Right")
 		{
 			moveBall(ballSpeed, direction: "Up_Right")
-			ballMoveFromDirection = "Bottom_Left"
+			ballMoveFromDirection = "Down_Left"
 		}
 		else
 		{
-			var directionsArray = ["Up_Right", "Up_Left"] // , "Up"]
+			var directionsArray = ["Up_Right"] //, "Up_Left"] // , "Up"]
+			ballMoveFromDirection = "Down_Left"
 			let i = Int(arc4random_uniform(UInt32(directionsArray.count)))
 			let randomDirection = String(directionsArray[i])
 			moveBall(ballSpeed, direction: randomDirection)
@@ -271,17 +269,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func hitInTop()
 	{
-		print("hitInTop")
+		//print("hitInTop")
+		
+		lastContactObject = "Top"
 		
 		if (ballMoveDirection == "Up_Left")
 		{
 			moveBall(ballSpeed, direction: "Down_Left")
-			ballMoveFromDirection = "Top_Right"
+			ballMoveFromDirection = "Top_Right" // potrzebne do odbicia pilki od górnej krawędzi kostki
 		}
 		else if (ballMoveDirection == "Up_Right")
 		{
 			moveBall(ballSpeed, direction: "Down_Right")
-			ballMoveFromDirection = "Top_Left"
+			ballMoveFromDirection = "Top_Left" // potrzebne do odbicia pilki od górnej krawędzi kostki
 		}
 		else
 		{
@@ -292,14 +292,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	func hitInLeftWall()
 	{
 		
-		print("hitInLeftWall")
+		//print("hitInLeftWall")
+		lastContactObject = "leftWall"
 		
 		if (ballMoveDirection == "Down_Left")
 		{
 			moveBall(ballSpeed, direction: "Down_Right")
 			ballMoveFromDirection = "Up_Left"
 		}
-		else
+		else if (ballMoveDirection == "Up_Left")
 		{
 			moveBall(ballSpeed, direction: "Up_Right")
 			ballMoveFromDirection = "Down_Left"
@@ -308,88 +309,93 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func hitInRightWall()
 	{
-		print("hitInRightWall")
+		//print("hitInRightWall")
+		lastContactObject = "rightWall"
 
 		if (ballMoveDirection == "Down_Right")
 		{
 			moveBall(ballSpeed, direction: "Down_Left")
 			ballMoveFromDirection = "Up_Right"
 		}
-		else
+		else if (ballMoveDirection == "Up_Right")
 		{
 			moveBall(ballSpeed, direction: "Up_Left")
 			ballMoveFromDirection = "Down_Right"
 		}
 	}
 	
-	func hitInBrick()
+	
+	func hitInBrick(contactPoint: CGPoint)
 	{
-		// TODO: Dodać odbicie z boku i od góry
-		
-		print(ballMoveFromDirection)
-		
-		if (ballMoveFromDirection == "Bottom_Right" || ballMoveFromDirection == "Bottom_Left")
+		if (contactPoint.y >= ((contactWithBrickName.node?.position.y)! + brick.size.height/2 - 2) ||
+			contactPoint.y <= ((contactWithBrickName.node?.position.y)! - brick.size.height/2 + 2))
 		{
-			// Odbicie z dołu
-			if (ballMoveDirection == "Up_Left")
+			if (contactPoint.y > (contactWithBrickName.node?.position.y)!)
 			{
-				moveBall(ballSpeed, direction: "Down_Left")
-				//ballMoveFromDirection =
-				inContactWithOneBrick = false
-			}
-			else if (ballMoveDirection == "Up_Right")
-			{
-				moveBall(ballSpeed, direction: "Down_Right")
-				inContactWithOneBrick = false
-			}
-		}
-		else if (ballMoveFromDirection == "Top_Right" || ballMoveFromDirection == "Top_Left")
-		{
-			// Odbicie z Góry
-			if (ballMoveDirection == "Down_Left")
-			{
-				moveBall(ballSpeed, direction: "Up_Left")
-				inContactWithOneBrick = false
-			}
-			else if (ballMoveDirection == "Down_Right")
-			{
-				moveBall(ballSpeed, direction: "Up_Right")
-				inContactWithOneBrick = false
-			}
-		}
-		else if (ballMoveFromDirection == "Up_Left" || ballMoveFromDirection == "Down_Left")
-		{
-			// Odbicie z lewej
-			if (ballMoveDirection == "Up_Right")
-			{
-				moveBall(ballSpeed, direction: "Up_Left")
-				inContactWithOneBrick = false
-			}
-			else if (ballMoveDirection == "Down_Right")
-			{
-				moveBall(ballSpeed, direction: "Down_Left")
-				inContactWithOneBrick = false
-			}
-		}
-		else if (ballMoveFromDirection == "Up_Right" || ballMoveFromDirection == "Down_Right")
-		{
-			// Odbicie z prawej
-			if (ballMoveDirection == "Up_Left")
-			{
-				moveBall(ballSpeed, direction: "Up_Right")
-				inContactWithOneBrick = false
-			}
-			else if (ballMoveDirection == "Down_Left")
-			{
-				moveBall(ballSpeed, direction: "Down_Right")
-				inContactWithOneBrick = false
+				print("Góra")
+				
+				if (ballMoveDirection == "Down_Left")
+				{
+					moveBall(ballSpeed, direction: "Up_Left")
+					inContactWithOneBrick = false
+				}
+				else if (ballMoveDirection == "Down_Right")
+				{
+					moveBall(ballSpeed, direction: "Up_Right")
+					inContactWithOneBrick = false
+				}
 			}
 			else
 			{
-				moveBall(ballSpeed, direction: "Down")
-				inContactWithOneBrick = false
+				print("Dół")
+				
+				if (ballMoveDirection == "Up_Left")
+				{
+					moveBall(ballSpeed, direction: "Down_Left")
+					inContactWithOneBrick = false
+				}
+				else if (ballMoveDirection == "Up_Right")
+				{
+					moveBall(ballSpeed, direction: "Down_Right")
+					inContactWithOneBrick = false
+				}
 			}
 		}
+		else if (contactPoint.x >= ((contactWithBrickName.node?.position.x)! + brick.size.width/2 - 2) ||
+				contactPoint.x <= ((contactWithBrickName.node?.position.x)! - brick.size.width/2 + 2))
+		{
+			if (contactPoint.x > (contactWithBrickName.node?.position.x)!)
+			{
+				print("Prawy bok")
+				
+				if (ballMoveDirection == "Up_Left")
+				{
+					moveBall(ballSpeed, direction: "Up_Right")
+					inContactWithOneBrick = false
+				}
+				else if (ballMoveDirection == "Down_Left")
+				{
+					moveBall(ballSpeed, direction: "Down_Right")
+					inContactWithOneBrick = false
+				}
+			}
+			else
+			{
+				print("Lewy bok")
+				
+				if (ballMoveDirection == "Up_Right")
+				{
+					moveBall(ballSpeed, direction: "Up_Left")
+					inContactWithOneBrick = false
+				}
+				else if (ballMoveDirection == "Down_Right")
+				{
+					moveBall(ballSpeed, direction: "Down_Left")
+					inContactWithOneBrick = false
+				}
+			}
+		}
+
 		pointsNumber += 50
 		pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
 		
@@ -406,18 +412,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				winGame()
 			}
 		}
-		
-		
-		print("contact with brick: \(contactWithBrickName.node?.name)")
 	}
 	
 	func hitInBottom()
 	{
 		//var strLenght = distance(lifesLabel.text!.startIndex, lifesLabel.text!.endIndex) // Swift 1.2
 		
-		hitInTray()
+		//hitInTray()
 		
-		/*
+		
 		if (lifesLabel.text!.characters.count >= 2)
 		{
 			var str = lifesLabel.text!
@@ -462,7 +465,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			stillAChance = false
 			ballIsInMiddleOfMoving = false
 		}
-		*/
 	}
 	
 	// ---
@@ -481,7 +483,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
  		let spaceBetwenBricks: CGSize = CGSizeMake(15, -78)
 
 		
-		let baseOrigin: CGPoint = CGPointMake(CGRectGetMidX(self.frame) - 70 - spaceBetwenBricks.width,CGRectGetMaxY(self.frame) - 140)
+		let baseOrigin: CGPoint = CGPointMake(CGRectGetMidX(self.frame) - 70 - spaceBetwenBricks.width,CGRectGetMaxY(self.frame) - 160) // powinno byś 140
 		
 		
 
@@ -519,6 +521,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		startTrayPosition = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMinY(self.frame) + 70)
 		tray = Tray(imageNamed: "Tray")
 		tray.position = startTrayPosition
+		
+		print(tray.position.y)
 		addChild(tray)
 	}
 	
@@ -663,6 +667,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if (ballIsInMiddleOfMoving)
 			{
 				moveBall(ballSpeed,direction: ballMoveDirection)
+				
+				//print("ball x: \(ball.position.x)")
+				//print("ball y: \(ball.position.y)")
 			}
 		}
 	}
