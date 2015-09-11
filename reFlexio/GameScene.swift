@@ -271,6 +271,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		{
 			gameOverLabel.removeFromParent()
 			winnerLabel.removeFromParent()
+			
+			playerName.removeFromParent()
+			pointListLabel.removeFromParent()
 		}
 		else if (operation == "Restart_Chance")
 		{
