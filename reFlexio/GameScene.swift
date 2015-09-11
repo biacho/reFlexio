@@ -28,21 +28,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var brick:Brick!
 	
 	var bricksArray: [String] = []
+	var bricksCollections: [SKSpriteNode] = []
 	
-	let gameOverLabel = SKLabelNode(fontNamed:"Chalkduster")
-	var restartLabel = SKLabelNode(fontNamed:"Chalkduster")
-	let winnerLabel = SKLabelNode(fontNamed:"Chalkduster")
-	var pointsLabel = SKLabelNode(fontNamed:"Chalkduster")
-	var lifesLabel = SKLabelNode()
+	var gameOverLabel = SKLabelNode()	//fontNamed:"Chalkduster")
+	var restartLabel = SKLabelNode()	// fontNamed:"Chalkduster")
+	var winnerLabel = SKLabelNode()		// fontNamed:"Chalkduster")
+	var playerName = SKLabelNode()
+	var pointListLabel = SKLabelNode()
+	
 	var bgImage = SKSpriteNode()
 	var bgLine = SKSpriteNode()
+
 	
+	var lifesLabel = SKLabelNode(fontNamed: "AppleSDGothicNeo-Light")
+	var lifeTitleLabel = SKLabelNode()
+
+	var pointsLabel = SKLabelNode(fontNamed: "AppleSDGothicNeo-Light")
+	var pointsTitleLabel = SKLabelNode()
 	var pointsNumberFormatter = NSNumberFormatter()
 	var pointsNumber = Int()
-	
-	
-	var playingTime = SKLabelNode(fontNamed:"Chalkduster")
+
+	var playingTime = SKLabelNode(fontNamed: "AppleSDGothicNeo-Light")		// fontNamed:"Chalkduster")
+	var timeTitleLabel = SKLabelNode()
 	var timerNumber = Int()
+	var timeNumberFormatter = NSNumberFormatter()
 	var timer = NSTimer()
 	
 	var moveBallToDirection = SKAction()
@@ -102,17 +111,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func didMoveToView(view: SKView)
 	{
-		/* Background && Top Line*/
-		bgLine = SKSpriteNode(color: UIColor.whiteColor(), size: CGSizeMake(self.frame.size.width, 1))
-		bgLine.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 60)
-		bgLine.name = "TopLine"
-		addChild(bgLine)
 		
-		bgImage = SKSpriteNode(imageNamed: "Background")
-		bgImage.position = CGPointMake(CGRectGetWidth(self.frame)/2, CGRectGetHeight(self.frame)/2)
-		bgImage.name = "Background"
-		bgImage.zPosition = -1.0
-		addChild(bgImage)
 		
 		/* Setup veriables */
 		let sizeWallTop: CGSize = CGSizeMake(self.size.width, 1)
@@ -141,35 +140,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		let wall = Walls(passData: passData)
 		addChild(wall)
 		
-		/* Point's Label */
-		pointsNumberFormatter.minimumIntegerDigits = 6
-		pointsNumber = 0
-		pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
-		pointsLabel.name = "PointsLabel"
-//		pointsLabel.fontSize = 38 // iPad Mini 1
-		pointsLabel.fontSize = 22 // iPhone 5
-		pointsLabel.position = CGPointMake(CGRectGetMaxX(self.frame) - (pointsLabel.frame.size.width + 15), CGRectGetMaxY(self.frame) - 40);
-		pointsLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
-		self.addChild(pointsLabel)
 		
-		/* Life Label */
-		lifesLabel.name = "LifeLabel"
-		lifesLabel.text = "🏈🏈🏈"
-//		lifesLabel.fontSize = 38 // iPad Mini 1
-		lifesLabel.fontSize = 18 // iPhone 5
-		lifesLabel.position = CGPointMake(CGRectGetMidX(self.frame) - lifesLabel.frame.size.width/2, CGRectGetMaxY(self.frame) - 40)
-		lifesLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
-		self.addChild(lifesLabel)
 		
-		/* Play Time Label */
-		timerNumber = 0
-		playingTime.text = "Time: \(timerNumber)"
-		pointsLabel.name = "PlayTimeLabel"
-		playingTime.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
-//		playingTime.fontSize = 38 // iPad Mini 1
-		playingTime.fontSize = 22 // iPhone 5
-		playingTime.position = CGPointMake(CGRectGetMinX(self.frame) + 10, CGRectGetMaxY(self.frame) - 40);
-		self.addChild(playingTime)
+		labels("Create")
 		
 		/* Setup your scene here */
 		//self.view!.showsPhysics = true
@@ -190,10 +163,124 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		view.addGestureRecognizer(panGesture)
 	}
 	
+	func labels(operation: String)
+	{
+		if operation == "Create"
+		{
+			/* Background && Top Line*/
+			bgLine = SKSpriteNode(color: UIColor.whiteColor(), size: CGSizeMake(self.frame.size.width, 1))
+			bgLine.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - 60)
+			bgLine.name = "TopLine"
+			addChild(bgLine)
+			
+			bgImage = SKSpriteNode(imageNamed: "Background")
+			bgImage.position = CGPointMake(CGRectGetWidth(self.frame)/2, CGRectGetHeight(self.frame)/2)
+			bgImage.name = "Background"
+			bgImage.zPosition = -1.0
+			addChild(bgImage)
+			
+			/* Point's Label */
+			pointsTitleLabel.name = "PointsTitleLabel"
+			pointsTitleLabel.text = "Points"
+			pointsTitleLabel.fontSize = 18.0
+			//print(UIFontWeightThin.description)
+			pointsTitleLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Center
+			pointsTitleLabel.position = CGPointMake(CGRectGetMaxX(self.frame) - (pointsTitleLabel.frame.size.height + 40.0), CGRectGetMaxY(self.frame) - 25.0)
+			self.addChild(pointsTitleLabel)
+			
+			pointsNumberFormatter.minimumIntegerDigits = 6
+			pointsNumber = 0
+			pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
+			pointsLabel.name = "PointsLabel"
+			//pointsLabel.fontSize = 38 // iPad Mini 1
+			pointsLabel.fontSize = 22.0 // iPhone 5
+			pointsLabel.position = CGPointMake(CGRectGetMaxX(self.frame) - (pointsLabel.frame.size.width + 13.0), CGRectGetMaxY(self.frame) - 48.0);
+			pointsLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
+			self.addChild(pointsLabel)
+			
+			/* Life Label */
+			lifeTitleLabel.name = "LifeTitleLabel"
+			lifeTitleLabel.text = "Life"
+			lifeTitleLabel.fontSize = 18.0 // for system font
+			lifeTitleLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Center
+			lifeTitleLabel.position = CGPointMake(CGRectGetMidX(self.frame) - 3.0, CGRectGetMaxY(self.frame) - 25.0)
+			self.addChild(lifeTitleLabel)
+			
+			lifesLabel.name = "LifeLabel"
+			lifesLabel.text = "🏈🏈🏈"
+			//lifesLabel.fontSize = 38 // iPad Mini 1
+			lifesLabel.fontSize = 18.0 // iPhone 5
+			lifesLabel.position = CGPointMake(CGRectGetMidX(self.frame) - lifesLabel.frame.size.width/2.0 - 7.0, CGRectGetMaxY(self.frame) - 48.0)
+			lifesLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
+			self.addChild(lifesLabel)
+			
+			/* Play Time Label */
+			timeTitleLabel.name = "timeTitleLabel"
+			timeTitleLabel.text = "Time"
+			timeTitleLabel.fontSize = 18.0 // for system font
+			timeTitleLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Center
+			timeTitleLabel.position = CGPointMake(CGRectGetMinX(self.frame) + 44.0, CGRectGetMaxY(self.frame) - 25.0)
+			self.addChild(timeTitleLabel)
+			
+			timeNumberFormatter.minimumIntegerDigits = 5
+			timerNumber = 0
+			playingTime.text = "\(timeNumberFormatter.stringFromNumber(timerNumber)!)"
+			playingTime.name = "PlayTimeLabel"
+			playingTime.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.Left
+			//playingTime.fontSize = 38 // iPad Mini 1
+			playingTime.fontSize = 22.0 // iPhone 5
+			playingTime.position = CGPointMake(CGRectGetMinX(self.frame) + 13.0, CGRectGetMaxY(self.frame) - 48.0)
+			self.addChild(playingTime)
+		}
+		else if (operation == "Create_Win")
+		{
+			winnerLabel.childNodeWithName("WINNER!!")
+			winnerLabel.text = "WINNER !!"
+			winnerLabel.fontSize = 36
+			winnerLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/1.5);
+			addChild(winnerLabel)
+			
+			
+			playerName.text = "Name :" // Create Label for player to craet name
+			playerName.position = CGPoint(x: winnerLabel.position.x - winnerLabel.position.x/4, y: winnerLabel.position.y - winnerLabel.position.y/4)
+			playerName.fontSize = 22
+			addChild(playerName)
+			
+			pointListLabel.text = "\(pointsLabel.text!)"
+			pointListLabel.fontSize = 22
+			pointListLabel.position = CGPoint(x: winnerLabel.position.x + winnerLabel.position.x/5 , y: winnerLabel.position.y - winnerLabel.position.y/4)
+			addChild(pointListLabel)
+		}
+		else if (operation == "Remove")
+		{
+			timer.invalidate()
+			playingTime.text = "\(timeNumberFormatter.stringFromNumber(timerNumber)!)"
+			
+			playingTime.removeFromParent()
+			timeTitleLabel.removeFromParent()
+			
+			pointsLabel.removeFromParent()
+			pointsTitleLabel.removeFromParent()
+			
+			lifesLabel.removeFromParent()
+			lifeTitleLabel.removeFromParent()
+			
+			bgLine.removeFromParent()
+		}
+		else if (operation == "Restart_GameOver")
+		{
+			gameOverLabel.removeFromParent()
+			winnerLabel.removeFromParent()
+		}
+		else if (operation == "Restart_Chance")
+		{
+			restartLabel.removeFromParent()
+		}
+	}
 	
 	func counter()
 	{
-		playingTime.text = "Time: \(timerNumber++)"
+		playingTime.text = "\(timeNumberFormatter.stringFromNumber(timerNumber++)!)"
 	}
 	
 	// BALL
@@ -401,9 +488,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		contactWithBrickName.node?.removeFromParent()
 		
+		
 		if bricksArray.contains((contactWithBrickName.node?.name)!)
 		{
 			bricksArray.removeAtIndex(bricksArray.indexOf((contactWithBrickName.node?.name)!)!)
+			
 			
 			if (bricksArray.count == 0)
 			{
@@ -433,7 +522,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			tray.removeFromParent()
 			
 			restartLabel.text = "Tap to Restart";
-			restartLabel.fontSize = 48;
+			restartLabel.fontSize = 36;
 			restartLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2);
 			addChild(restartLabel)
 			
@@ -445,15 +534,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			print("Game Over")
 			gameOverLabel.childNodeWithName("GameOver")
 			gameOverLabel.text = "Game Over :(";
-			gameOverLabel.fontSize = 48;
+			gameOverLabel.fontSize = 36;
 			gameOverLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2);
-			pointsNumber = 0
-			timer.invalidate()
-			timerNumber = 0
-			playingTime.text = "Time: 0"
-			playingTime.removeFromParent()
-			pointsLabel.removeFromParent()
-			lifesLabel.removeFromParent()
+			
+			labels("Remove")
+			
+			// TODO: Usunąc wszystkie kostki przy GameOver!
+			for brick in bricksCollections {
+				brick.removeFromParent()
+			}
+			
 			addChild(gameOverLabel)
 			
 			ball.removeAllActions()
@@ -508,6 +598,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				addChild(brick)
 				
 				bricksArray.append(str)
+				bricksCollections.append(brick)
+				
 				brickPosition.x += self.brick.size.width + spaceBetwenBricks.width // brickPosition.x - self.frame.width/4
 				
 			}
@@ -567,36 +659,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		print("WINNER!")
 		gameIsOver = true
 		
-		winnerLabel.childNodeWithName("WINNER!!")
-		winnerLabel.text = "WINNER !!"
-		winnerLabel.fontSize = 56
-		winnerLabel.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/1.5);
-		addChild(winnerLabel)
-		
-		
-		let playerName = SKLabelNode(fontNamed: "Chalkduster")
-		playerName.text = "FTW :" // Create Label for player to craet name
-		playerName.position = CGPoint(x: winnerLabel.position.x - winnerLabel.position.x/4, y: winnerLabel.position.y - winnerLabel.position.y/4)
-		playerName.fontSize = 36
-		addChild(playerName)
-		
-		let pointListLabel = SKLabelNode(fontNamed: "Chalkduster")
-		pointListLabel.text = "\(pointsLabel.text!)"
-		pointListLabel.fontSize = 36
-		pointListLabel.position = CGPoint(x: winnerLabel.position.x + winnerLabel.position.x/5 , y: winnerLabel.position.y - winnerLabel.position.y/4)
-		addChild(pointListLabel)
-		
+		labels("Create_Win")
 		
 		
 		// Clear display and labels
-		pointsNumber = 0
-		timer.invalidate()
-		timerNumber = 0
-		playingTime.text = "Time: 0"
-		playingTime.removeFromParent()
-		pointsLabel.removeFromParent()
-		lifesLabel.removeFromParent()
-		bgLine.removeFromParent()
+		labels("Remove")
 		
 		ball.removeAllActions()
 		ball.removeFromParent()
@@ -617,17 +684,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			traySetUp()
 			brickSetUp()
 			
-			pointsLabel.text = "\(pointsNumberFormatter.stringFromNumber(pointsNumber)!)"
-			self.addChild(pointsLabel)
-			
-			playingTime.text = "Time: \(timerNumber)"
-			self.addChild(playingTime)
-			
-			lifesLabel.text = "🏈🏈🏈"
-			self.addChild(lifesLabel)
-			
-			gameOverLabel.removeFromParent()
-			winnerLabel.removeFromParent()
+			labels("Restart_GameOver")
+			labels("Create")
 		
 			gameIsOver = false
 			stillAChance = false
@@ -635,7 +693,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		else if (stillAChance)
 		{
-			restartLabel.removeFromParent()
+			labels("Restart_Chance")
 			
 			ballSetUp()
 			traySetUp()

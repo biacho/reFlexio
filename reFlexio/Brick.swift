@@ -15,7 +15,6 @@ class Brick: SKSpriteNode {
 		fatalError("init(coder:) has not been implemented")
 	}
 	
-
 	init(imageNamed: String)
 	{
 		
