@@ -22,6 +22,20 @@
 		<string>Info</string>
 		<key>back</key>
 		<string>Powrót</string>
+		<key>points</key>
+		<string>Punkty</string>
+		<key>life</key>
+		<string>Życie</string>
+		<key>time</key>
+		<string>Czas</string>
+		<key>winner</key>
+		<string>Wygrany</string>
+		<key>name</key>
+		<string>Imie</string>
+		<key>tapToRestart</key>
+		<string>Restart Gry</string>
+		<key>gameOver</key>
+		<string>Koniec Gry</string>
 	</dict>
 	<key>ENG</key>
 	<dict>
@@ -43,6 +57,20 @@
 		<string>Credits</string>
 		<key>back</key>
 		<string>Back</string>
+		<key>points</key>
+		<string>Points</string>
+		<key>life</key>
+		<string>Life</string>
+		<key>time</key>
+		<string>Time</string>
+		<key>winner</key>
+		<string>Winner</string>
+		<key>name</key>
+		<string>Name</string>
+		<key>tapToRestart</key>
+		<string>Tap to Restart</string>
+		<key>gameOver</key>
+		<string>Game Over :(</string>
 	</dict>
 </dict>
 </plist>

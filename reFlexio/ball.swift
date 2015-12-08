@@ -49,7 +49,6 @@ class Ball: SKSpriteNode {
 		//body.contactTestBitMask = Obstacles.tray.rawValue
 		//body.collisionBitMask = Obstacles.nothing.rawValue
 		//body.usesPreciseCollisionDetection = false
-		
 		self.physicsBody = body
 	}
 	

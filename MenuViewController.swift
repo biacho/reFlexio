@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MenuViewController: UIViewController
+class MenuViewController: UIViewController, UIPopoverPresentationControllerDelegate
 {
 	
 	@IBOutlet weak var playLabel: UIButton!
@@ -31,6 +31,10 @@ class MenuViewController: UIViewController
 			{
 				print("Back to Menu.")
 			}
+		}
+		else if let _ = unwindSegue.sourceViewController as? GameViewController
+		{
+			print("Back from Game")
 		}
 	}
 	
@@ -56,7 +60,10 @@ class MenuViewController: UIViewController
 			}
 		}
 	}
-
+	
+	func adaptivePresentationStyleForPresentationController(controller: UIPresentationController) -> UIModalPresentationStyle {
+		return UIModalPresentationStyle.None
+	}
 	
 	override func viewDidLoad()
 	{
