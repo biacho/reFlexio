@@ -36,6 +36,8 @@ class GameViewController: UIViewController, GameSceneDelegate {
 	@IBOutlet weak var showInGameMenuButton: UIButton!
 	@IBOutlet weak var hideInGameMenuButton: UIButton!
 	
+	@IBOutlet weak var points: UILabel!
+	
 	var translation = String()
 	var viewTransitionTo = CGFloat()
 	
@@ -75,7 +77,7 @@ class GameViewController: UIViewController, GameSceneDelegate {
 		
 		print("Game Over")
 		
-		translation = "showPlayerNameView"
+		//translation = "showPlayerNameView"
 		//setUpPlayerNameView("show")
 	}
 	
@@ -193,7 +195,7 @@ class GameViewController: UIViewController, GameSceneDelegate {
 		// TODO:	Animacja nie działa, więc trzeba coś poprawić. Wyczytane na stackoverflow, że jedna warstwa (layer) nie obsłuży fadeIn i fadeOut...
 		//			http://stackoverflow.com/questions/8707104/coreanimation-opacity-fade-in-and-out-animation-not-working
 		//			Może tutaj wystraczy samo UIViewAnimation ?
-		
+		/*
 		if (transition == "show")
 		{
 			print("show")
@@ -228,6 +230,7 @@ class GameViewController: UIViewController, GameSceneDelegate {
 			//viewAnimation.fillMode = kCAFillModeBoth
 			animationPlayerNameView.addAnimation(viewAnimation, forKey: "opacity")
 		}
+		*/
 	}
 	
 	func isScoreIsOnScreen() -> Bool
